@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 requireLogin();
+refreshSession();
+$user = currentUser();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);

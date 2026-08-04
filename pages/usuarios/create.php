@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 requireLogin();
+refreshSession();
+$user = currentUser();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $sucursales = $db->query("SELECT * FROM sucursales WHERE activa=1 ORDER BY nombre")->fetchAll();

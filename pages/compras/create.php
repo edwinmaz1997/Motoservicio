@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB();
 $proveedores = $db->query("SELECT * FROM proveedores WHERE activo=1 ORDER BY nombre")->fetchAll();
 $productos   = $db->query("SELECT * FROM productos WHERE activo=1 AND tipo='estandar' ORDER BY nombre")->fetchAll();

@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB();
 $errors = [];
 $data = ['nombre'=>'','apellido'=>'','correo'=>'','nit'=>'','dpi'=>'','direccion'=>'','telefono'=>''];

@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB();
 $marcas   = $db->query("SELECT * FROM marcas ORDER BY nombre")->fetchAll();
 $clientes = $db->prepare("SELECT * FROM clientes WHERE sucursal_id=? AND activo=1 ORDER BY nombre");

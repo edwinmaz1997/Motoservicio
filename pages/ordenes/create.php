@@ -66,7 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 <?php endif; ?>
 
-<form method="POST" x-data="ordenForm()">
+<div x-data="ordenForm()">
+<form method="POST">
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
     <div class="xl:col-span-2 space-y-4">
@@ -257,6 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </form>
 
 <!-- ===== MODAL: NUEVO CLIENTE ===== -->
+<!-- Los modales van dentro del div x-data -->
 <div x-show="modalCliente" x-cloak @click.self="modalCliente=false"
      class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-screen overflow-y-auto">
@@ -399,5 +401,7 @@ function ordenForm() {
     }
 }
 </script>
+
+</div><!-- fin x-data -->
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

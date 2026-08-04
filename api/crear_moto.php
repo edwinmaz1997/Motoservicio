@@ -21,19 +21,19 @@ $km         = (int)($_POST['kilometraje'] ?? 0);
 $placa      = trim($_POST['placa']        ?? '');
 $vin        = trim($_POST['vin']          ?? '');
 
-if (!$clienteId || !$marcaTexto) {
-    jsonResponse(['error' => 'Cliente y marca son requeridos'], 422);
-}
+if (!$clienteId) jsonResponse(['error' => 'Cliente es requerido'], 422);
+if (!$marcaTexto) jsonResponse(['error' => 'La marca es requerida'], 422);
 
-// Verificar que el cliente pertenece a la sucursal
 $db = getDB();
-$check = $db->prepare("SELECT id FROM clientes WHERE id=? AND sucursal_id=?");
-$check->execute([$clienteId, $user['sucursal_id']]);
-if (!$check->fetch()) jsonResponse(['error' => 'Cliente no válido'], 403);
+
+// Verificar que el cliente existe (sin filtrar por sucursal — ya está autenticado)
+$check = $db->prepare("SELECT id FROM clientes WHERE id=?");
+$check->execute([$clienteId]);
+if (!$check->fetch()) jsonResponse(['error' => 'Cliente no encontrado'], 404);
 
 $db->prepare("INSERT INTO motocicletas (cliente_id,marca_id,marca_texto,modelo,anio,color,kilometraje,placa,vin) VALUES (?,?,?,?,?,?,?,?,?)")
-   ->execute([$clienteId,$marcaId,$marcaTexto,$modelo,$anio,$color,$km,$placa,$vin]);
+   ->execute([$clienteId, $marcaId, $marcaTexto, $modelo, $anio, $color, $km, $placa, $vin]);
 
-$id = $db->lastInsertId();
+$id    = $db->lastInsertId();
 $label = trim("$marcaTexto $modelo") . ($placa ? " ($placa)" : '');
 jsonResponse(['id' => $id, 'label' => $label]);

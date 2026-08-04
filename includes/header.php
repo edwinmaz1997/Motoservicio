@@ -24,6 +24,7 @@ function navActive($dir) {
     <title><?= sanitize($pageTitle ?? APP_NAME) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>document.addEventListener("alpine:init",()=>{const s=document.createElement("style");s.textContent="[x-cloak]{display:none!important}";document.head.appendChild(s);});</script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         [x-cloak] { display: none !important; }
@@ -37,7 +38,7 @@ function navActive($dir) {
      class="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"></div>
 
 <!-- SIDEBAR -->
-<aside x-cloak
+<aside
        :class="[
            'fixed top-0 left-0 h-screen bg-blue-900 text-white z-40 flex flex-col transition-all duration-300',
            'lg:translate-x-0',

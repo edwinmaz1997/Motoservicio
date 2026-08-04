@@ -128,7 +128,7 @@ function navActive($dir) {
 
 <!-- MAIN -->
 <main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'"
-      class="transition-all duration-300 min-h-screen pt-16 lg:pt-0 px-3 py-4 lg:px-6 lg:py-6">
+      class="transition-all duration-300 min-h-screen pt-20 lg:pt-8 px-4 py-5 lg:px-8 lg:py-8">
 
     <?php if ($flash): ?>
     <div class="mb-4 px-4 py-3 rounded-lg text-sm font-medium

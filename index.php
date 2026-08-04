@@ -21,10 +21,14 @@ $stmt = $db->prepare("SELECT COUNT(*) FROM ordenes WHERE sucursal_id = ? AND fec
 $stmt->execute([$suc, $hoy]);
 $motosVencidas = $stmt->fetchColumn();
 
-// Total recaudado hoy (ventas + órdenes entregadas hoy)
+// Total recaudado hoy: ventas de mostrador + anticipos/pagos recibidos hoy en órdenes
 $stmt = $db->prepare("SELECT COALESCE(SUM(total),0) FROM ventas WHERE sucursal_id = ? AND fecha = ? AND estado = 'pagada'");
 $stmt->execute([$suc, $hoy]);
-$ventasHoy = $stmt->fetchColumn();
+$ventasHoy = (float)$stmt->fetchColumn();
+
+$stmt = $db->prepare("SELECT COALESCE(SUM(a.monto),0) FROM anticipos a JOIN ordenes o ON o.id = a.orden_id WHERE o.sucursal_id = ? AND DATE(a.created_at) = ?");
+$stmt->execute([$suc, $hoy]);
+$ventasHoy += (float)$stmt->fetchColumn();
 
 // Total anticipos pendientes
 $stmt = $db->prepare("SELECT COALESCE(SUM(a.monto),0) FROM anticipos a JOIN ordenes o ON o.id = a.orden_id WHERE o.sucursal_id = ? AND o.estado IN ('abierta','en_proceso')");

@@ -1,0 +1,12 @@
+Options -Indexes
+DirectoryIndex index.php
+
+RewriteEngine On
+RewriteBase /
+
+# Si el archivo o directorio existe, servir directo
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Quitar .php de las URLs
+RewriteRule ^([^\.]+)$ $1.php [NC,L]

@@ -1,7 +1,9 @@
 <?php
+ob_start(); // Buffer output — permite usar header() en cualquier punto
+
 define('APP_NAME', 'DIAZ Motoservicio');
 define('APP_VERSION', '1.0.0');
-define('BASE_URL', 'http://localhost/Motoservicio'); // Cambiar en producción
+define('BASE_URL', 'https://motoserviciodiaz.nuevaexpress.com'); // Producción
 
 // Zona horaria
 date_default_timezone_set('America/Guatemala');

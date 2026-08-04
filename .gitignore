@@ -1,5 +1,11 @@
-# Uploads
-uploads/
+# Uploads — ignorar archivos subidos pero mantener la estructura
+uploads/logos/*
+!uploads/logos/.htaccess
+!uploads/logos/.gitkeep
+uploads/*.php
+
+# Config con credenciales reales
+config/database.php
 
 # Logs
 *.log

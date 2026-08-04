@@ -273,3 +273,17 @@ INSERT INTO usuarios (sucursal_id, nombre, apellido, rol_id, username, password_
 VALUES (1, 'Administrador', 'Sistema', 1, 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi');
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ---------------------------------------------
+-- CONFIGURACIÓN DE SUCURSAL
+-- ---------------------------------------------
+ALTER TABLE sucursales
+    ADD COLUMN IF NOT EXISTS logo_path    VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS color_primario VARCHAR(7) DEFAULT '#1d4ed8',
+    ADD COLUMN IF NOT EXISTS color_secundario VARCHAR(7) DEFAULT '#1e40af',
+    ADD COLUMN IF NOT EXISTS municipio   VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS departamento VARCHAR(100) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS nit         VARCHAR(20)  DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS razon_social VARCHAR(200) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS slogan      VARCHAR(255) DEFAULT NULL,
+    ADD COLUMN IF NOT EXISTS horario     VARCHAR(255) DEFAULT NULL;

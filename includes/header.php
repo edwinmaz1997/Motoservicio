@@ -6,6 +6,18 @@ require_once __DIR__ . '/../includes/helpers.php';
 requireLogin();
 refreshSession();
 $user  = currentUser();
+
+// Cargar config de sucursal para colores y logo
+$_sucConfig = [];
+if (!empty($user['sucursal_id'])) {
+    $_sucStmt = getDB()->prepare("SELECT * FROM sucursales WHERE id=?");
+    $_sucStmt->execute([$user['sucursal_id']]);
+    $_sucConfig = $_sucStmt->fetch() ?: [];
+}
+$_colorPrim = $_sucConfig['color_primario'] ?? '#1d4ed8';
+$_colorSec  = $_sucConfig['color_secundario'] ?? '#1e40af';
+$_logoPath  = $_sucConfig['logo_path'] ?? null;
+$_appName   = $_sucConfig['nombre'] ?? APP_NAME;
 $flash = getFlash();
 global $ROLES;
 $currentFile = basename($_SERVER['PHP_SELF']);
@@ -30,6 +42,15 @@ function navActive($dir) {
     <style>
         [x-cloak] { display: none !important; }
         body { overflow-x: hidden; }
+        :root {
+            --cp: <?= $_colorPrim ?>;
+            --cs: <?= $_colorSec ?>;
+        }
+        aside { background-color: color-mix(in srgb, var(--cp) 30%, #0f172a) !important; }
+        aside .border-blue-800 { border-color: rgba(255,255,255,0.1) !important; }
+        aside nav a.bg-blue-700, aside nav a.active { background-color: var(--cp) !important; }
+        aside nav a:hover { background-color: color-mix(in srgb, var(--cp) 60%, transparent) !important; }
+        header.lg\:hidden { background-color: color-mix(in srgb, var(--cp) 30%, #0f172a) !important; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans" x-data="{ sidebarOpen: window.innerWidth >= 1024, mobileOpen: false }" @resize.window="sidebarOpen = window.innerWidth >= 1024">
@@ -49,8 +70,12 @@ function navActive($dir) {
 
     <!-- Logo -->
     <div class="flex items-center justify-between px-4 py-4 border-b border-blue-800 min-h-[64px]">
-        <span x-show="sidebarOpen || mobileOpen" class="text-xl font-bold tracking-wide truncate">🏍️ DIAZ</span>
-        <span x-show="!sidebarOpen && !mobileOpen" class="text-xl">🏍️</span>
+        <?php if ($_logoPath): ?>
+        <img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt="Logo" class="w-8 h-8 object-contain rounded flex-shrink-0">
+        <?php else: ?>
+        <span class="text-xl flex-shrink-0">🏍️</span>
+        <?php endif; ?>
+        <span x-show="sidebarOpen || mobileOpen" class="text-sm font-bold tracking-wide truncate"><?= sanitize($_appName) ?></span>
         <button @click="sidebarOpen = !sidebarOpen" class="text-blue-300 hover:text-white hidden lg:block ml-auto">
             <i :class="sidebarOpen ? 'fas fa-chevron-left' : 'fas fa-chevron-right'"></i>
         </button>
@@ -90,7 +115,9 @@ function navActive($dir) {
         $adminLinks = [
             ['usuarios',   '/pages/usuarios/',   'fa-user-cog', 'Usuarios'],
             ['sucursales', '/pages/sucursales/', 'fa-store',    'Sucursales'],
+            ['configuracion','/pages/configuracion/','fa-cog','Configuración'],
         ];
+
         foreach ($adminLinks as [$dir, $path, $icon, $label]):
             $active = navActive($dir) ? 'bg-blue-700 text-white' : 'text-blue-200 hover:bg-blue-800 hover:text-white';
         ?>
@@ -122,7 +149,8 @@ function navActive($dir) {
     <button @click="mobileOpen=true" class="text-white text-xl">
         <i class="fas fa-bars"></i>
     </button>
-    <span class="font-bold text-lg">🏍️ DIAZ</span>
+    <?php if ($_logoPath): ?><img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt="Logo" class="w-7 h-7 object-contain rounded"><?php else: ?><span>🏍️</span><?php endif; ?>
+    <span class="font-bold text-base truncate"><?= sanitize($_appName) ?></span>
     <div class="ml-auto text-sm text-blue-300"><?= sanitize($user['nombre']) ?></div>
 </header>
 

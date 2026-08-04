@@ -55,10 +55,10 @@ if ($tipo === 'ventas') {
     $stmt->execute([$suc, $fechaDesde, $fechaHasta]);
     $rows = $stmt->fetchAll();
 
-    $totEfectivo = array_sum(array_column(array_filter($rows, fn($r)=>$r['metodo_pago']==='efectivo'&&$r['estado']==='pagada'), 'total'));
-    $totTarjeta  = array_sum(array_column(array_filter($rows, fn($r)=>$r['metodo_pago']==='tarjeta'&&$r['estado']==='pagada'), 'total'));
-    $totTransf   = array_sum(array_column(array_filter($rows, fn($r)=>$r['metodo_pago']==='transferencia'&&$r['estado']==='pagada'), 'total'));
-    $totGeneral  = array_sum(array_column(array_filter($rows, fn($r)=>$r['estado']==='pagada'), 'total'));
+    $totEfectivo = array_sum(array_column(array_filter($rows, function($r){ return $r['metodo_pago']==='efectivo' && $r['estado']==='pagada'; }), 'total'));
+    $totTarjeta  = array_sum(array_column(array_filter($rows, function($r){ return $r['metodo_pago']==='tarjeta' && $r['estado']==='pagada'; }), 'total'));
+    $totTransf   = array_sum(array_column(array_filter($rows, function($r){ return $r['metodo_pago']==='transferencia' && $r['estado']==='pagada'; }), 'total'));
+    $totGeneral  = array_sum(array_column(array_filter($rows, function($r){ return $r['estado']==='pagada'; }), 'total'));
     $totales = ['Efectivo'=>$totEfectivo,'Tarjeta'=>$totTarjeta,'Transferencia'=>$totTransf,'Total'=>$totGeneral];
 }
 
@@ -115,7 +115,7 @@ elseif ($tipo === 'compras') {
     ");
     $stmt->execute([$suc, $fechaDesde, $fechaHasta]);
     $rows = $stmt->fetchAll();
-    $totales = ['Total compras' => array_sum(array_column(array_filter($rows,fn($r)=>$r['estado']!=='anulada'),'total'))];
+    $totales = ['Total compras' => array_sum(array_column(array_filter($rows, function($r){ return $r['estado']!=='anulada'; }),'total'))];
 }
 
 elseif ($tipo === 'clientes') {
@@ -144,9 +144,9 @@ elseif ($tipo === 'inventario') {
     ");
     $rows = $stmt->fetchAll();
     $totales = [
-        'Productos estándar' => count(array_filter($rows,fn($r)=>$r['tipo']==='estandar')),
-        'Servicios'          => count(array_filter($rows,fn($r)=>$r['tipo']==='servicio')),
-        'Bajo stock'         => count(array_filter($rows,fn($r)=>$r['tipo']==='estandar'&&$r['stock']<=$r['stock_minimo']&&$r['stock_minimo']>0)),
+        'Productos estándar' => count(array_filter($rows, function($r){ return $r['tipo']==='estandar'; })),
+        'Servicios'          => count(array_filter($rows, function($r){ return $r['tipo']==='servicio'; })),
+        'Bajo stock'         => count(array_filter($rows, function($r){ return $r['tipo']==='estandar' && $r['stock']<=$r['stock_minimo'] && $r['stock_minimo']>0; })),
     ];
 }
 

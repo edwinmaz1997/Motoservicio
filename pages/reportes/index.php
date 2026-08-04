@@ -241,7 +241,7 @@ $tipos = [
     <div class="bg-white rounded-xl shadow p-4">
         <div class="text-xs text-gray-500 mb-1"><?= $label ?></div>
         <div class="text-xl font-bold text-gray-800">
-            <?= is_float($val) || (is_numeric($val) && str_contains((string)$val,'.')) ? formatMoney($val) : $val ?>
+            <?= is_float($val) || (is_numeric($val) && strpos((string)$val, '.') !== false) ? formatMoney($val) : $val ?>
         </div>
     </div>
     <?php endforeach; ?>

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/helpers.php';
 requireLogin();
+refreshSession();
 $user  = currentUser();
 $flash = getFlash();
 global $ROLES;

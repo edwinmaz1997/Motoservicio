@@ -34,3 +34,18 @@ function currentUser() {
 function isAdmin() {
     return ($_SESSION['rol_id'] ?? 0) === ROL_ADMIN;
 }
+
+// Si la sesión no tiene sucursal_id, recargar desde BD
+function refreshSession() {
+    if (isset($_SESSION['usuario_id']) && empty($_SESSION['sucursal_id'])) {
+        $db = getDB();
+        $stmt = $db->prepare("SELECT u.*, s.nombre as sucursal_nombre FROM usuarios u JOIN sucursales s ON s.id=u.sucursal_id WHERE u.id=? LIMIT 1");
+        $stmt->execute([$_SESSION['usuario_id']]);
+        $u = $stmt->fetch();
+        if ($u) {
+            $_SESSION['sucursal_id']     = $u['sucursal_id'];
+            $_SESSION['sucursal_nombre'] = $u['sucursal_nombre'];
+            $_SESSION['rol_id']          = $u['rol_id'];
+        }
+    }
+}

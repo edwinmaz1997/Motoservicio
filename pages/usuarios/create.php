@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Nuevo Usuario';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $sucursales = $db->query("SELECT * FROM sucursales WHERE activa=1 ORDER BY nombre")->fetchAll();
@@ -32,6 +36,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: index.php'); exit;
     }
 }
+$pageTitle = 'Nuevo Usuario';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
     <a href="index.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>

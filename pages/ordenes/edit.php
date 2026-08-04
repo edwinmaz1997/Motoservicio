@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Editar Orden';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
 $stmt = $db->prepare("SELECT * FROM ordenes WHERE id=? AND sucursal_id=?");
@@ -21,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: view.php?id='.$id); exit;
 }
 $estadoOpts=['abierta'=>'Abierta','en_proceso'=>'En proceso','lista'=>'Lista'];
+$pageTitle = 'Editar Orden';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
     <a href="view.php?id=<?= $id ?>" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>

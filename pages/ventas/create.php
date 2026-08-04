@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Nueva Venta';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 
 $db = getDB();
 $clientes  = $db->prepare("SELECT * FROM clientes WHERE sucursal_id=? AND activo=1 ORDER BY nombre,apellido");
@@ -41,6 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: view.php?id='.$ventaId); exit;
     }
 }
+$pageTitle = 'Nueva Venta';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center gap-3 mb-6">

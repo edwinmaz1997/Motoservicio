@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Nueva Motocicleta';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 $db = getDB();
 $marcas   = $db->query("SELECT * FROM marcas ORDER BY nombre")->fetchAll();
 $clientes = $db->prepare("SELECT * FROM clientes WHERE sucursal_id=? AND activo=1 ORDER BY nombre");
@@ -22,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header('Location: '.$red); exit;
     }
 }
+$pageTitle = 'Nueva Motocicleta';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
     <a href="<?= $preClienteId ? '../clientes/view.php?id='.$preClienteId : 'index.php' ?>" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>

@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Editar Cliente';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
@@ -33,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     $cliente = array_merge($cliente, $data);
 }
+$pageTitle = 'Editar Cliente';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center gap-3 mb-6">

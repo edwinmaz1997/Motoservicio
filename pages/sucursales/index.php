@@ -1,6 +1,10 @@
 <?php
 $pageTitle = 'Sucursales';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $action = $_GET['action'] ?? 'list';
@@ -42,6 +46,8 @@ if (($action === 'edit') && $id) {
 }
 
 $sucursales = $db->query("SELECT s.*, (SELECT COUNT(*) FROM usuarios WHERE sucursal_id=s.id) as n_usuarios FROM sucursales s ORDER BY s.nombre")->fetchAll();
+$pageTitle = 'Sucursales';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center justify-between mb-6">

@@ -91,7 +91,7 @@ elseif ($tipo === 'anticipos') {
         JOIN ordenes o ON o.id=a.orden_id
         JOIN clientes c ON c.id=o.cliente_id
         LEFT JOIN usuarios u ON u.id=a.cajero_id
-        WHERE o.sucursal_id=? AND DATE(a.created_at) BETWEEN ? AND ?
+        WHERE o.sucursal_id=? AND DATE(CONVERT_TZ(a.created_at,'+00:00','-06:00')) BETWEEN ? AND ?
         ORDER BY a.created_at DESC");
     $stmt->execute([$suc, $fechaDesde, $fechaHasta]);
     $rows = $stmt->fetchAll();

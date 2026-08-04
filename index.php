@@ -26,7 +26,7 @@ $stmt = $db->prepare("SELECT COALESCE(SUM(total),0) FROM ventas WHERE sucursal_i
 $stmt->execute([$suc, $hoy]);
 $ventasHoy = (float)$stmt->fetchColumn();
 
-$stmt = $db->prepare("SELECT COALESCE(SUM(a.monto),0) FROM anticipos a JOIN ordenes o ON o.id = a.orden_id WHERE o.sucursal_id = ? AND DATE(a.created_at) = ?");
+$stmt = $db->prepare("SELECT COALESCE(SUM(a.monto),0) FROM anticipos a JOIN ordenes o ON o.id = a.orden_id WHERE o.sucursal_id = ? AND DATE(CONVERT_TZ(a.created_at,'+00:00','-06:00')) = ?");
 $stmt->execute([$suc, $hoy]);
 $ventasHoy += (float)$stmt->fetchColumn();
 

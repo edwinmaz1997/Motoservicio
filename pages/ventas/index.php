@@ -1,5 +1,6 @@
 <?php
 $pageTitle = 'Ventas';
+require_once __DIR__ . '/../../includes/fel/FelClient.php';
 require_once __DIR__ . '/../../includes/header.php';
 
 $db     = getDB();
@@ -78,12 +79,13 @@ $totalHoy = $totalHoy->fetchColumn();
                     <th class="px-4 py-3 text-left">Método</th>
                     <th class="px-4 py-3 text-right">Total</th>
                     <th class="px-4 py-3 text-left">Estado</th>
+                    <th class="px-4 py-3 text-left">FEL</th>
                     <th class="px-4 py-3 text-left">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
                 <?php if (empty($ventas)): ?>
-                <tr><td colspan="8" class="px-4 py-8 text-center text-gray-400">No se encontraron ventas</td></tr>
+                <tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">No se encontraron ventas</td></tr>
                 <?php endif; ?>
                 <?php foreach ($ventas as $v): ?>
                 <tr class="hover:bg-gray-50 <?= $v['estado']==='anulada'?'opacity-50':'' ?>">
@@ -97,6 +99,18 @@ $totalHoy = $totalHoy->fetchColumn();
                         <span class="px-2 py-1 rounded-full text-xs font-medium <?= $v['estado']==='pagada'?'bg-green-100 text-green-700':'bg-red-100 text-red-700' ?>">
                             <?= ucfirst($v['estado']) ?>
                         </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <?php $d = felDocumentoDeVenta($v['id']); ?>
+                        <?php if ($d && $d['estado']==='certificado'): ?>
+                            <a href="../fel/ver.php?id=<?= $d['id'] ?>" class="text-teal-600 hover:text-teal-800" title="Factura certificada"><i class="fas fa-file-invoice-dollar"></i></a>
+                        <?php elseif ($d && $d['estado']==='rechazado'): ?>
+                            <a href="../fel/ver.php?id=<?= $d['id'] ?>" class="text-red-500 hover:text-red-700" title="FEL rechazado"><i class="fas fa-triangle-exclamation"></i></a>
+                        <?php elseif ($d && $d['estado']==='anulado'): ?>
+                            <span class="text-gray-400" title="Anulado"><i class="fas fa-ban"></i></span>
+                        <?php else: ?>
+                            <span class="text-gray-300">—</span>
+                        <?php endif; ?>
                     </td>
                     <td class="px-4 py-3 flex gap-2">
                         <a href="view.php?id=<?= $v['id'] ?>" class="text-blue-500 hover:text-blue-700"><i class="fas fa-eye"></i></a>

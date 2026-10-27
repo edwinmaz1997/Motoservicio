@@ -116,6 +116,7 @@ function navActive($dir) {
             ['usuarios',   '/pages/usuarios/',   'fa-user-cog', 'Usuarios'],
             ['sucursales', '/pages/sucursales/', 'fa-store',    'Sucursales'],
             ['configuracion','/pages/configuracion/','fa-cog','Configuración'],
+            ['fel',         '/pages/fel/',          'fa-file-invoice-dollar','Facturación FEL'],
         ];
 
         foreach ($adminLinks as [$dir, $path, $icon, $label]):

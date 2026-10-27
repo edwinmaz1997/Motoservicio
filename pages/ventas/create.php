@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/fel/FelClient.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -12,6 +13,7 @@ $clientes  = $db->prepare("SELECT * FROM clientes WHERE sucursal_id=? AND activo
 $clientes->execute([$user['sucursal_id']]); $clientes = $clientes->fetchAll();
 $productos = $db->query("SELECT p.*, c.nombre as categoria FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id WHERE p.activo=1 ORDER BY p.tipo, p.nombre")->fetchAll();
 $categorias = $db->query("SELECT * FROM categorias ORDER BY nombre")->fetchAll();
+$felActivo  = felHabilitado($user['sucursal_id']);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -20,6 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $notas     = trim($_POST['notas'] ?? '');
     $fecha     = $_POST['fecha'] ?? date('Y-m-d');
     $items     = $_POST['items'] ?? [];
+    $conFel    = !empty($_POST['emitir_fel']) && $felActivo;
+
+    // Datos del receptor para el DTE
+    $felNitPost    = trim($_POST['fel_nit'] ?? '');
+    $felNombrePost = trim($_POST['fel_nombre'] ?? '');
+    $felCorreoPost = trim($_POST['fel_correo'] ?? '');
 
     if (empty($items)) $errors[] = 'Agrega al menos un producto.';
 
@@ -27,9 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $total = 0;
         foreach ($items as $item) $total += (float)($item['precio']??0) * (float)($item['cantidad']??1);
         $numero = generateNumero('VTA-', 'ventas', 'numero_venta');
-        $db->prepare("INSERT INTO ventas (sucursal_id,cliente_id,vendedor_id,numero_venta,fecha,total,metodo_pago,notas) VALUES (?,?,?,?,?,?,?,?)")
-           ->execute([$user['sucursal_id'],$clienteId,$user['id'],$numero,$fecha,$total,$metodo,$notas]);
+        $db->prepare("INSERT INTO ventas (sucursal_id,cliente_id,vendedor_id,numero_venta,fecha,total,metodo_pago,notas,emitir_fel) VALUES (?,?,?,?,?,?,?,?,?)")
+           ->execute([$user['sucursal_id'],$clienteId,$user['id'],$numero,$fecha,$total,$metodo,$notas,$conFel?1:0]);
         $ventaId = $db->lastInsertId();
+
+        $felItems = [];
         foreach ($items as $item) {
             if (empty($item['producto_id'])) continue;
             $cant  = (float)($item['cantidad']??1);
@@ -38,7 +48,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare("INSERT INTO venta_detalle (venta_id,producto_id,cantidad,precio_unit,subtotal) VALUES (?,?,?,?,?)")
                ->execute([$ventaId,$item['producto_id'],$cant,$precio,$sub]);
             $db->prepare("UPDATE productos SET stock=stock-? WHERE id=? AND tipo='estandar'")->execute([$cant,$item['producto_id']]);
+
+            if ($conFel) {
+                $p = $db->prepare("SELECT nombre, tipo, unidad, unidad_sat FROM productos WHERE id=?");
+                $p->execute([$item['producto_id']]);
+                $prod = $p->fetch();
+                $felItems[] = [
+                    'tipo'        => ($prod['tipo'] ?? 'estandar') === 'servicio' ? 'S' : 'B',
+                    'cantidad'    => $cant,
+                    'unidad'      => $prod['unidad_sat'] ?: ($prod['unidad'] ?: 'UND'),
+                    'descripcion' => $prod['nombre'] ?? 'Producto',
+                    'precio_unit' => $precio,
+                    'descuento'   => 0,
+                ];
+            }
         }
+
+        // Emisión del documento electrónico
+        if ($conFel && $felItems) {
+            $receptor = ['nit'=>'CF', 'nombre'=>'CONSUMIDOR FINAL', 'correo'=>'',
+                         'direccion'=>'', 'codigo_postal'=>'', 'municipio'=>'', 'departamento'=>''];
+
+            if ($clienteId) {
+                $c = $db->prepare("SELECT * FROM clientes WHERE id=?");
+                $c->execute([$clienteId]);
+                if ($cli = $c->fetch()) {
+                    $receptor = [
+                        'nit'           => $cli['nit'] ?: 'CF',
+                        'nombre'        => trim($cli['nombre'].' '.$cli['apellido']),
+                        'correo'        => $cli['correo'] ?: '',
+                        'direccion'     => $cli['direccion'] ?: '',
+                        'codigo_postal' => $cli['codigo_postal'] ?? '',
+                        'municipio'     => $cli['municipio'] ?? '',
+                        'departamento'  => $cli['departamento'] ?? '',
+                    ];
+                }
+            }
+            // Lo escrito en el formulario manda sobre la ficha del cliente
+            if ($felNitPost !== '')    $receptor['nit']    = $felNitPost;
+            if ($felNombrePost !== '') $receptor['nombre'] = $felNombrePost;
+            if ($felCorreoPost !== '') $receptor['correo'] = $felCorreoPost;
+
+            $res = felCertificar($user['sucursal_id'], $receptor, $felItems, [
+                'tipo_dte'   => 'FACT',
+                'venta_id'   => $ventaId,
+                'usuario_id' => $user['id'],
+                'adenda'     => ['Numero_venta' => $numero],
+            ]);
+
+            if ($res['ok']) {
+                flashMessage('success', "Venta $numero registrada y facturada. Autorización: " . substr($res['uuid'], 0, 20) . '…');
+            } else {
+                flashMessage('error', "Venta $numero registrada, pero el documento no se certificó: " . $res['error']);
+            }
+            header('Location: view.php?id='.$ventaId); exit;
+        }
+
         flashMessage('success',"Venta $numero registrada.");
         header('Location: view.php?id='.$ventaId); exit;
     }
@@ -240,20 +305,111 @@ require_once __DIR__ . '/../../includes/header.php';
                 <div id="hidden-fields"></div>
             </form>
 
-            <button type="button" @click="submitVenta()"
+            <?php if ($felActivo): ?>
+            <!-- Desglose de IVA cuando se va a facturar -->
+            <div class="mt-3 pt-3 border-t text-xs text-gray-500 space-y-1">
+                <div class="flex justify-between">
+                    <span>Monto gravable</span>
+                    <span x-text="'Q ' + (total / 1.12).toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span>IVA 12%</span>
+                    <span x-text="'Q ' + (total - total / 1.12).toFixed(2)"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 space-y-2">
+                <button type="button" @click="abrirFel()"
+                        :disabled="items.length === 0"
+                        :class="items.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-teal-700'"
+                        class="w-full bg-teal-600 text-white py-3 rounded-lg font-medium text-sm transition">
+                    <i class="fas fa-file-invoice-dollar mr-1"></i> Venta con FEL
+                </button>
+                <button type="button" @click="submitVenta(false)"
+                        :disabled="items.length === 0"
+                        :class="items.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-800'"
+                        class="w-full bg-blue-700 text-white py-3 rounded-lg font-medium text-sm transition">
+                    <i class="fas fa-cash-register mr-1"></i> Registrar Venta
+                </button>
+            </div>
+            <p class="text-xs text-gray-400 mt-2 text-center">«Venta con FEL» emite factura electrónica ante SAT.</p>
+            <?php else: ?>
+            <button type="button" @click="submitVenta(false)"
                     :disabled="items.length === 0"
                     :class="items.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-800'"
                     class="mt-2 w-full bg-blue-700 text-white py-3 rounded-lg font-medium text-sm transition">
                 <i class="fas fa-cash-register mr-1"></i> Registrar Venta
             </button>
+            <?php endif; ?>
+
             <a href="index.php" class="mt-2 block text-center text-gray-500 text-sm hover:text-gray-700">Cancelar</a>
         </div>
     </div>
+
+<?php if ($felActivo): ?>
+<!-- ===== MODAL: DATOS DE FACTURACIÓN ===== -->
+<div x-show="modalFel" x-cloak @click.self="modalFel=false"
+     class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md">
+        <div class="flex items-center justify-between px-6 py-4 border-b">
+            <div>
+                <h3 class="font-semibold text-gray-800">Datos de facturación</h3>
+                <p class="text-xs text-gray-500">Se emitirá una factura electrónica ante SAT.</p>
+            </div>
+            <button @click="modalFel=false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="p-6 space-y-3">
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">NIT del receptor</label>
+                <input type="text" x-model="felNit" placeholder="CF para consumidor final"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <p class="text-xs text-gray-400 mt-1">Déjalo en CF si el cliente no da NIT.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Nombre del receptor</label>
+                <input type="text" x-model="felNombre" placeholder="CONSUMIDOR FINAL"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Correo (opcional)</label>
+                <input type="email" x-model="felCorreo" placeholder="Para enviarle la factura"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+
+            <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 text-sm space-y-1">
+                <div class="flex justify-between text-gray-500 text-xs">
+                    <span>Monto gravable</span>
+                    <span x-text="'Q ' + (total / 1.12).toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between text-gray-500 text-xs">
+                    <span>IVA 12%</span>
+                    <span x-text="'Q ' + (total - total / 1.12).toFixed(2)"></span>
+                </div>
+                <div class="flex justify-between font-bold pt-1 border-t border-gray-200">
+                    <span>Total a facturar</span>
+                    <span class="text-teal-700" x-text="'Q ' + total.toFixed(2)"></span>
+                </div>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" @click="submitVenta(true)"
+                        class="bg-teal-600 text-white px-5 py-2.5 rounded-lg text-sm hover:bg-teal-700 font-medium">
+                    <i class="fas fa-paper-plane mr-1"></i> Emitir factura
+                </button>
+                <button type="button" @click="modalFel=false"
+                        class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
 
 </div>
 
 <script>
 const productosData = <?= json_encode(array_column($productos, null, 'id')) ?>;
+const clientesData  = <?= json_encode(array_column($clientes, null, 'id')) ?>;
 
 function ventaForm() {
     return {
@@ -262,6 +418,10 @@ function ventaForm() {
         busqueda: '',
         categoriaFiltro: '',
         productosFiltrados: <?= count($productos) ?>,
+        modalFel: false,
+        felNit: 'CF',
+        felNombre: '',
+        felCorreo: '',
 
         productoVisible(id) {
             const p = productosData[id];
@@ -326,10 +486,28 @@ function ventaForm() {
             this.total = this.items.reduce((s, i) => s + (i.subtotal || 0), 0);
         },
 
-        submitVenta() {
+        // Abre el modal precargando los datos del cliente seleccionado
+        abrirFel() {
+            if (this.items.length === 0) return;
+            const sel = document.getElementById('f_cliente');
+            if (sel && sel.value) {
+                const c = clientesData[sel.value];
+                if (c) {
+                    this.felNit    = (c.nit && c.nit.trim()) ? c.nit : 'CF';
+                    this.felNombre = (c.nombre + ' ' + (c.apellido || '')).trim();
+                    this.felCorreo = c.correo || '';
+                }
+            } else {
+                this.felNit = 'CF';
+                this.felNombre = '';
+                this.felCorreo = '';
+            }
+            this.modalFel = true;
+        },
+
+        submitVenta(conFel) {
             if (this.items.length === 0) return;
             const form = document.getElementById('form-venta');
-            // Copiar datos del encabezado
             const addField = (name, value) => {
                 const input = document.createElement('input');
                 input.type = 'hidden'; input.name = name; input.value = value;
@@ -339,6 +517,14 @@ function ventaForm() {
             addField('cliente_id', document.getElementById('f_cliente').value);
             addField('metodo_pago',document.getElementById('f_metodo').value);
             addField('notas',      document.getElementById('f_notas').value);
+
+            if (conFel) {
+                addField('emitir_fel', '1');
+                addField('fel_nit',    this.felNit || 'CF');
+                addField('fel_nombre', this.felNombre || 'CONSUMIDOR FINAL');
+                addField('fel_correo', this.felCorreo || '');
+            }
+
             this.items.forEach((item, i) => {
                 addField(`items[${i}][producto_id]`, item.producto_id);
                 addField(`items[${i}][cantidad]`,    item.cantidad);

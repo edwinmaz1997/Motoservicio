@@ -47,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db->prepare("INSERT INTO ordenes (sucursal_id,cliente_id,motocicleta_id,tecnico_id,asesor_id,numero_orden,fecha_ingreso,fecha_salida_esperada,kilometraje_ingreso,diagnostico,observaciones,total,saldo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)")
            ->execute([$user['sucursal_id'],$data['cliente_id'],$data['motocicleta_id'],$data['tecnico_id']?:null,$data['asesor_id']?:null,$numero,$data['fecha_ingreso'],$data['fecha_salida_esperada']?:null,$data['kilometraje_ingreso']?:null,$data['diagnostico'],$data['observaciones'],$total,$total]);
         $ordenId = $db->lastInsertId();
+        tokenOrden($ordenId); // enlace para compartir con el cliente
 
         foreach ($items as $item) {
             if (empty($item['producto_id'])) continue;

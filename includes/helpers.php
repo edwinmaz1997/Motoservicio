@@ -45,3 +45,41 @@ function isAjax() {
     return isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
            strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 }
+
+/**
+ * Token del enlace público de una orden. Lo crea si aún no tiene.
+ */
+function tokenOrden($ordenId) {
+    $db = getDB();
+    $stmt = $db->prepare("SELECT token_publico FROM ordenes WHERE id=?");
+    $stmt->execute([$ordenId]);
+    $t = $stmt->fetchColumn();
+    if ($t) return $t;
+
+    for ($i = 0; $i < 5; $i++) {
+        $nuevo = bin2hex(random_bytes(10));
+        try {
+            $db->prepare("UPDATE ordenes SET token_publico=? WHERE id=?")->execute([$nuevo, $ordenId]);
+            return $nuevo;
+        } catch (Exception $e) { /* colisión: reintenta */ }
+    }
+    return null;
+}
+
+/**
+ * Enlace que se le comparte al cliente.
+ */
+function urlSeguimiento($ordenId) {
+    $t = tokenOrden($ordenId);
+    return $t ? BASE_URL . '/orden.php?t=' . $t : null;
+}
+
+/**
+ * Normaliza un teléfono guatemalteco a formato internacional para WhatsApp.
+ */
+function telWhatsApp($tel) {
+    $n = preg_replace('/[^0-9]/', '', (string)$tel);
+    if ($n === '') return null;
+    if (strlen($n) === 8) $n = '502' . $n;      // número local
+    return $n;
+}

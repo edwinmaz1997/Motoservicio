@@ -54,6 +54,10 @@ require_once __DIR__ . '/../../includes/header.php';
     </div>
     <!-- Botones de acción en fila scrollable en móvil -->
     <div class="flex gap-2 overflow-x-auto pb-1">
+        <button type="button" onclick="document.getElementById('modal-compartir').classList.remove('hidden')"
+                class="flex-shrink-0 bg-[#25D366] text-white px-3 py-2 rounded-lg text-sm hover:brightness-105 whitespace-nowrap">
+            <i class="fab fa-whatsapp mr-1"></i> Compartir
+        </button>
         <?php if (isset($siguienteEstado[$o['estado']])): ?>
         <a href="cambiar_estado.php?id=<?= $o['id'] ?>&estado=<?= $siguienteEstado[$o['estado']] ?>"
            class="flex-shrink-0 bg-green-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-green-700 whitespace-nowrap"
@@ -312,5 +316,88 @@ require_once __DIR__ . '/../../includes/header.php';
         </form>
     </div>
 </div>
+
+<?php
+$urlPublica = urlSeguimiento($o['id']);
+$telCliente = telWhatsApp($o['cliente_tel']);
+$primerNombre = explode(' ', trim($o['cliente']))[0];
+
+$mensaje = "Hola $primerNombre, aquí puedes ver cómo va tu "
+         . trim($o['moto']) . " en el taller:\n\n"
+         . $urlPublica . "\n\n"
+         . "Orden " . $o['numero_orden'] . " — " . sanitize($o['sucursal']);
+?>
+
+<!-- Compartir con el cliente -->
+<div id="modal-compartir" class="hidden fixed inset-0 bg-slate-900/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div class="flex items-start justify-between px-6 py-4 border-b border-slate-100">
+            <div>
+                <h3 class="font-semibold text-slate-900">Compartir con el cliente</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Podrá ver el avance y el monto sin necesidad de llamar.</p>
+            </div>
+            <button onclick="document.getElementById('modal-compartir').classList.add('hidden')"
+                    class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 flex-shrink-0">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Enlace de seguimiento</label>
+                <div class="flex gap-2">
+                    <input type="text" id="url-publica" readonly value="<?= sanitize($urlPublica) ?>"
+                           onclick="this.select()"
+                           class="flex-1 min-w-0 border border-slate-200 rounded-lg px-3 py-2 text-[12.5px] bg-slate-50 text-slate-600">
+                    <button type="button" onclick="copiarEnlace(this)"
+                            class="flex-shrink-0 bg-slate-100 text-slate-700 px-3 py-2 rounded-lg text-sm hover:bg-slate-200">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            <?php if ($telCliente): ?>
+            <a href="https://wa.me/<?= $telCliente ?>?text=<?= rawurlencode($mensaje) ?>"
+               target="_blank" rel="noopener"
+               onclick="document.getElementById('modal-compartir').classList.add('hidden')"
+               class="flex items-center justify-center gap-2.5 bg-[#25D366] text-white font-medium text-[14.5px] py-3 rounded-xl hover:brightness-105">
+                <i class="fab fa-whatsapp text-lg"></i>
+                Enviar a <?= sanitize($o['cliente_tel']) ?>
+            </a>
+            <?php else: ?>
+            <div class="bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3 text-[13px]">
+                Este cliente no tiene teléfono registrado.
+                <a href="../clientes/edit.php?id=<?= $o['cliente_id'] ?>" class="underline font-medium">Agregarlo</a>
+                para poder enviarle el enlace por WhatsApp.
+            </div>
+            <?php endif; ?>
+
+            <a href="https://wa.me/?text=<?= rawurlencode($mensaje) ?>" target="_blank" rel="noopener"
+               class="block text-center text-[13px] text-slate-500 hover:text-slate-700">
+                Elegir otro contacto
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function copiarEnlace(btn) {
+    const campo = document.getElementById('url-publica');
+    campo.select();
+    const ok = () => {
+        btn.innerHTML = '<i class="fas fa-check"></i>';
+        btn.classList.add('text-emerald-600');
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-copy"></i>';
+            btn.classList.remove('text-emerald-600');
+        }, 1800);
+    };
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(campo.value).then(ok).catch(() => { document.execCommand('copy'); ok(); });
+    } else {
+        document.execCommand('copy'); ok();
+    }
+}
+</script>
 
 <?php require_once __DIR__ . '/../../includes/footer.php'; ?>

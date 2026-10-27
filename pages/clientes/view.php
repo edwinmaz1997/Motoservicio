@@ -1,6 +1,11 @@
 <?php
-$pageTitle = 'Detalle Cliente';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
@@ -16,11 +21,14 @@ $motos = $motos->fetchAll();
 $ordenes = $db->prepare("SELECT o.*, CONCAT(u.nombre,' ',u.apellido) as tecnico FROM ordenes o LEFT JOIN usuarios u ON u.id = o.tecnico_id WHERE o.cliente_id = ? ORDER BY o.created_at DESC LIMIT 10");
 $ordenes->execute([$id]);
 $ordenes = $ordenes->fetchAll();
+
+$pageTitle = 'Detalle Cliente';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center gap-3 mb-6">
-    <a href="index.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-2xl font-bold text-gray-800"><?= sanitize($c['nombre'] . ' ' . $c['apellido']) ?></h1>
+    <a href="index.php" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight"><?= sanitize($c['nombre'] . ' ' . $c['apellido']) ?></h1>
     <a href="edit.php?id=<?= $c['id'] ?>" class="ml-auto bg-yellow-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-yellow-600">
         <i class="fas fa-edit mr-1"></i> Editar
     </a>
@@ -29,7 +37,7 @@ $ordenes = $ordenes->fetchAll();
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Info -->
     <div class="bg-white rounded-xl shadow p-6">
-        <h2 class="font-semibold text-gray-700 mb-4">Información</h2>
+        <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Información</h2>
         <dl class="space-y-2 text-sm">
             <div class="flex justify-between"><dt class="text-gray-500">Teléfono</dt><dd><?= sanitize($c['telefono'] ?? '—') ?></dd></div>
             <div class="flex justify-between"><dt class="text-gray-500">Correo</dt><dd><?= sanitize($c['correo'] ?? '—') ?></dd></div>
@@ -42,7 +50,7 @@ $ordenes = $ordenes->fetchAll();
     <!-- Motos -->
     <div class="bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-gray-700">Motocicletas</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 tracking-tight">Motocicletas</h2>
             <a href="../motos/create.php?cliente_id=<?= $c['id'] ?>" class="text-blue-600 text-xs hover:underline">+ Agregar</a>
         </div>
         <?php if (empty($motos)): ?>
@@ -63,7 +71,7 @@ $ordenes = $ordenes->fetchAll();
     <!-- Órdenes recientes -->
     <div class="bg-white rounded-xl shadow p-6">
         <div class="flex items-center justify-between mb-4">
-            <h2 class="font-semibold text-gray-700">Últimas órdenes</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 tracking-tight">Últimas órdenes</h2>
             <a href="../ordenes/create.php?cliente_id=<?= $c['id'] ?>" class="text-blue-600 text-xs hover:underline">+ Nueva</a>
         </div>
         <?php if (empty($ordenes)): ?>

@@ -1,6 +1,11 @@
 <?php
-$pageTitle = 'Productos';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB();
 $search = trim($_GET['q'] ?? '');
 $tipo   = $_GET['tipo'] ?? '';
@@ -12,9 +17,12 @@ if ($tipo)   { $where.=" AND p.tipo=?"; $params[]=$tipo; }
 $total = $db->prepare("SELECT COUNT(*) FROM productos p $where"); $total->execute($params); $totalRows=$total->fetchColumn(); $totalPages=ceil($totalRows/$limit);
 $stmt = $db->prepare("SELECT p.*, c.nombre as categoria FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id $where ORDER BY p.nombre LIMIT $limit OFFSET $offset");
 $stmt->execute($params); $productos=$stmt->fetchAll();
+
+$pageTitle = 'Productos';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Productos</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Productos</h1>
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm"><i class="fas fa-plus mr-1"></i> Nuevo producto</a>
 </div>
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">

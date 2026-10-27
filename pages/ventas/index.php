@@ -1,7 +1,12 @@
 <?php
-$pageTitle = 'Ventas';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 require_once __DIR__ . '/../../includes/fel/FelClient.php';
-require_once __DIR__ . '/../../includes/header.php';
 
 $db     = getDB();
 $search = trim($_GET['q'] ?? '');
@@ -46,11 +51,14 @@ $hoy = date('Y-m-d');
 $totalHoy = $db->prepare("SELECT COALESCE(SUM(total),0) FROM ventas WHERE sucursal_id=? AND fecha=? AND estado='pagada'");
 $totalHoy->execute([$user['sucursal_id'], $hoy]);
 $totalHoy = $totalHoy->fetchColumn();
+
+$pageTitle = 'Ventas';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center justify-between mb-6">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800">Ventas</h1>
+        <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Ventas</h1>
         <p class="text-sm text-gray-500">Total hoy: <span class="font-semibold text-green-600"><?= formatMoney($totalHoy) ?></span></p>
     </div>
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm">

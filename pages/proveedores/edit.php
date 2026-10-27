@@ -31,8 +31,8 @@ $pageTitle = 'Editar Proveedor';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
-    <a href="index.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-2xl font-bold text-gray-800">Editar Proveedor</h1>
+    <a href="index.php" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Editar Proveedor</h1>
 </div>
 <?php if ($errors): ?>
 <div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm mb-5">

@@ -187,7 +187,7 @@ $estadoColors = ['abierta'=>'bg-blue-100 text-blue-700','en_proceso'=>'bg-yellow
 ?>
 
 <div class="flex items-center justify-between mb-5">
-    <h1 class="text-xl lg:text-2xl font-bold text-gray-800">Reportes</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Reportes</h1>
     <button onclick="window.print()" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 no-print">
         <i class="fas fa-print mr-1"></i> Imprimir
     </button>

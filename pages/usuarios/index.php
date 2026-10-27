@@ -1,6 +1,11 @@
 <?php
-$pageTitle = 'Usuarios';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $search = trim($_GET['q'] ?? '');
@@ -15,9 +20,12 @@ $stmt = $db->prepare("SELECT u.*, s.nombre as sucursal FROM usuarios u JOIN sucu
 $stmt->execute($params);
 $usuarios = $stmt->fetchAll();
 global $ROLES;
+
+$pageTitle = 'Usuarios';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Usuarios</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Usuarios</h1>
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm">
         <i class="fas fa-plus mr-1"></i> Nuevo usuario
     </a>

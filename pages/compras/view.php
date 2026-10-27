@@ -1,16 +1,24 @@
 <?php
-$pageTitle = 'Detalle Compra';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB(); $id=(int)($_GET['id']??0);
 $stmt=$db->prepare("SELECT c.*,CONCAT(COALESCE(p.nombre,''),' ',COALESCE(p.apellido,'')) as proveedor FROM compras c LEFT JOIN proveedores p ON p.id=c.proveedor_id WHERE c.id=? AND c.sucursal_id=?");
 $stmt->execute([$id,$user['sucursal_id']]); $c=$stmt->fetch();
 if(!$c){flashMessage('error','Compra no encontrada.');header('Location: index.php');exit;}
 $detalle=$db->prepare("SELECT cd.*,p.nombre as producto FROM compra_detalle cd JOIN productos p ON p.id=cd.producto_id WHERE cd.compra_id=?");
 $detalle->execute([$id]);$detalle=$detalle->fetchAll();
+
+$pageTitle = 'Detalle Compra';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
-    <a href="index.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-2xl font-bold text-gray-800"><?= sanitize($c['numero_compra']) ?></h1>
+    <a href="index.php" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight"><?= sanitize($c['numero_compra']) ?></h1>
     <span class="px-3 py-1 rounded-full text-sm font-medium <?= $c['estado']==='recibida'?'bg-green-100 text-green-700':($c['estado']==='pendiente'?'bg-yellow-100 text-yellow-700':'bg-red-100 text-red-700') ?>"><?= ucfirst($c['estado']) ?></span>
     <?php if ($c['estado']!=='anulada'): ?>
     <a href="anular.php?id=<?= $c['id'] ?>" class="ml-auto bg-red-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-600" onclick="return confirm('¿Anular esta compra?')"><i class="fas fa-ban mr-1"></i> Anular</a>

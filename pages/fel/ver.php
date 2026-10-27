@@ -50,8 +50,8 @@ $cls = ['certificado'=>'bg-green-100 text-green-700','pendiente'=>'bg-yellow-100
 ?>
 
 <div class="flex items-center gap-3 mb-5 flex-wrap">
-    <a href="documentos.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-lg lg:text-2xl font-bold text-gray-800"><?= sanitize($doc['tipo_dte']) ?> · <?= sanitize($doc['serie'] ?: '—') ?>-<?= sanitize($doc['numero'] ?: '—') ?></h1>
+    <a href="documentos.php" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[20px] lg:text-[25px] font-semibold text-slate-900 tracking-tight"><?= sanitize($doc['tipo_dte']) ?> · <?= sanitize($doc['serie'] ?: '—') ?>-<?= sanitize($doc['numero'] ?: '—') ?></h1>
     <span class="px-2 py-1 rounded-full text-xs font-medium <?= $cls[$doc['estado']] ?? '' ?>"><?= ucfirst($doc['estado']) ?></span>
 
     <div class="ml-auto flex gap-2">
@@ -73,7 +73,7 @@ $cls = ['certificado'=>'bg-green-100 text-green-700','pendiente'=>'bg-yellow-100
 
     <div class="lg:col-span-2 space-y-4">
         <div class="bg-white rounded-xl shadow p-4 lg:p-5">
-            <h2 class="font-semibold text-gray-700 mb-3 text-sm uppercase tracking-wide">Datos del documento</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-3 tracking-tight">Datos del documento</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
                 <div><span class="text-gray-400 text-xs block">Receptor</span><span class="font-medium"><?= sanitize($doc['nombre_receptor']) ?></span></div>
                 <div><span class="text-gray-400 text-xs block">NIT</span><span class="font-medium font-mono"><?= sanitize($doc['nit_receptor']) ?></span></div>

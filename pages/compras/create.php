@@ -40,8 +40,8 @@ $pageTitle = 'Nueva Compra';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
-    <a href="index.php" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-2xl font-bold text-gray-800">Nueva Compra</h1>
+    <a href="index.php" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Nueva Compra</h1>
 </div>
 <?php if ($errors): ?><div class="bg-red-50 border border-red-300 text-red-700 px-4 py-3 rounded-lg text-sm mb-5"><?php foreach ($errors as $e): ?><div><?= sanitize($e) ?></div><?php endforeach; ?></div><?php endif; ?>
 
@@ -49,7 +49,7 @@ require_once __DIR__ . '/../../includes/header.php';
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="lg:col-span-2 space-y-6">
         <div class="bg-white rounded-xl shadow p-6">
-            <h2 class="font-semibold text-gray-700 mb-4">Datos de la Compra</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Datos de la Compra</h2>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div><label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
                     <input type="date" name="fecha" value="<?= date('Y-m-d') ?>" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
@@ -69,7 +69,7 @@ require_once __DIR__ . '/../../includes/header.php';
         </div>
         <div class="bg-white rounded-xl shadow p-6">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="font-semibold text-gray-700">Productos</h2>
+                <h2 class="text-[15px] font-semibold text-slate-900 tracking-tight">Productos</h2>
                 <button type="button" @click="agregarItem()" class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-sm hover:bg-blue-200"><i class="fas fa-plus mr-1"></i> Agregar</button>
             </div>
             <table class="w-full text-sm">
@@ -92,7 +92,7 @@ require_once __DIR__ . '/../../includes/header.php';
         </div>
     </div>
     <div><div class="bg-white rounded-xl shadow p-6 sticky top-6">
-        <h2 class="font-semibold text-gray-700 mb-4">Resumen</h2>
+        <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Resumen</h2>
         <div class="border-t pt-3 flex justify-between font-bold text-lg"><span>Total</span><span x-text="'Q '+total.toFixed(2)"></span></div>
         <button type="submit" class="mt-6 w-full bg-blue-700 text-white py-3 rounded-lg hover:bg-blue-800 font-medium text-sm"><i class="fas fa-save mr-1"></i> Registrar Compra</button>
         <a href="index.php" class="mt-2 block text-center text-gray-500 text-sm">Cancelar</a>

@@ -100,7 +100,7 @@ $colores = [
 ?>
 
 <div class="flex items-center gap-3 mb-6">
-    <h1 class="text-xl lg:text-2xl font-bold text-gray-800">Configuración de Sucursal</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Configuración de Sucursal</h1>
 </div>
 
 <?php if ($errors): ?>
@@ -119,7 +119,7 @@ $colores = [
 
         <!-- Identidad -->
         <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Identidad</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Identidad</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre comercial *</label>
@@ -146,7 +146,7 @@ $colores = [
 
         <!-- Contacto -->
         <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Contacto y Ubicación</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Contacto y Ubicación</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
@@ -190,7 +190,7 @@ $colores = [
 
         <!-- Logo -->
         <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Logo</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Logo</h2>
             <div class="flex items-start gap-6 flex-wrap">
                 <!-- Preview actual -->
                 <div class="flex-shrink-0">
@@ -220,7 +220,7 @@ $colores = [
 
         <!-- Colores -->
         <div class="bg-white rounded-xl shadow p-5">
-            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Colores del sistema</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Colores del sistema</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-3">Color primario</label>
@@ -268,7 +268,7 @@ $colores = [
     <!-- Preview sidebar -->
     <div>
         <div class="bg-white rounded-xl shadow p-5 sticky top-6">
-            <h2 class="font-semibold text-gray-700 mb-4 text-sm uppercase tracking-wide">Vista previa</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Vista previa</h2>
 
             <!-- Mini sidebar preview -->
             <div class="rounded-xl overflow-hidden border border-gray-200 mb-4">

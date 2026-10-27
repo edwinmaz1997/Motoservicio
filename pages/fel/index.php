@@ -60,7 +60,7 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
 ?>
 
 <div class="flex items-center justify-between mb-5 flex-wrap gap-2">
-    <h1 class="text-xl lg:text-2xl font-bold text-gray-800">Facturación Electrónica (FEL)</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Facturación Electrónica (FEL)</h1>
     <?php if ($cfg['activo']): ?>
         <span class="px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-700">
             <i class="fas fa-check-circle mr-1"></i> Activo ·
@@ -224,7 +224,7 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
         <!-- Últimos documentos -->
         <div class="bg-white rounded-xl shadow p-4 lg:p-5">
             <div class="flex items-center justify-between mb-3">
-                <h2 class="font-semibold text-gray-800 text-sm uppercase tracking-wide">Últimos documentos emitidos</h2>
+                <h2 class="text-[15px] font-semibold text-slate-900 tracking-tight">Últimos documentos emitidos</h2>
                 <a href="documentos.php" class="text-sm text-blue-600 hover:underline">Ver todos</a>
             </div>
             <div class="overflow-x-auto">
@@ -267,7 +267,7 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
     <!-- Panel lateral -->
     <div class="space-y-4">
         <div class="bg-white rounded-xl shadow p-5 xl:sticky xl:top-6">
-            <h2 class="font-semibold text-gray-800 mb-4 text-sm uppercase tracking-wide">Estado del servicio</h2>
+            <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight">Estado del servicio</h2>
 
             <label class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 mb-3">
                 <input type="checkbox" name="activo" value="1" <?= $cfg['activo']?'checked':'' ?>

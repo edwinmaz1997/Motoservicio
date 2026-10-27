@@ -1,6 +1,11 @@
 <?php
-$pageTitle = 'Compras';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 $db     = getDB();
 $search = trim($_GET['q'] ?? '');
 $fecha  = $_GET['fecha'] ?? '';
@@ -13,9 +18,12 @@ $total = $db->prepare("SELECT COUNT(*) FROM compras c LEFT JOIN proveedores p ON
 $total->execute($params); $totalRows=$total->fetchColumn(); $totalPages=ceil($totalRows/$limit);
 $stmt = $db->prepare("SELECT c.*, CONCAT(COALESCE(p.nombre,''),' ',COALESCE(p.apellido,'')) as proveedor FROM compras c LEFT JOIN proveedores p ON p.id=c.proveedor_id $where ORDER BY c.created_at DESC LIMIT $limit OFFSET $offset");
 $stmt->execute($params); $compras=$stmt->fetchAll();
+
+$pageTitle = 'Compras';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Compras</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Compras</h1>
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm"><i class="fas fa-plus mr-1"></i> Nueva compra</a>
 </div>
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">

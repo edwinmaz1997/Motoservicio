@@ -1,5 +1,11 @@
 <?php
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 $db = getDB(); $id = (int)($_GET['id'] ?? 0);
 $stmt = $db->prepare("SELECT * FROM ventas WHERE id=? AND sucursal_id=? AND estado='pagada'");
 $stmt->execute([$id,$user['sucursal_id']]); $v=$stmt->fetch();

@@ -53,13 +53,13 @@ require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Sucursales</h1>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Sucursales</h1>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Formulario -->
     <div class="bg-white rounded-xl shadow p-6">
-        <h2 class="font-semibold text-gray-700 mb-4"><?= $action==='edit' ? 'Editar sucursal' : 'Nueva sucursal' ?></h2>
+        <h2 class="text-[15px] font-semibold text-slate-900 mb-4 tracking-tight"><?= $action==='edit' ? 'Editar sucursal' : 'Nueva sucursal' ?></h2>
         <?php if ($errors): ?><div class="bg-red-50 border border-red-300 text-red-700 px-3 py-2 rounded text-sm mb-4"><?php foreach ($errors as $e): ?><div><?= sanitize($e) ?></div><?php endforeach; ?></div><?php endif; ?>
         <form method="POST" action="index.php<?= $action==='edit' ? '?action=edit&id='.$id : '' ?>">
             <div class="space-y-3">

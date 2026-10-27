@@ -1,6 +1,11 @@
 <?php
-$pageTitle = 'Órdenes de Servicio';
-require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/helpers.php';
+requireLogin();
+refreshSession();
+$user = currentUser();
 
 $db     = getDB();
 $search = trim($_GET['q'] ?? '');
@@ -87,11 +92,14 @@ $estadoLabels = [
     'entregada'  => 'Entregada',
     'cancelada'  => 'Cancelada',
 ];
+
+$pageTitle = 'Órdenes de Servicio';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800">Órdenes de Servicio</h1>
+        <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Órdenes de Servicio</h1>
         <?php if ($vista && isset($vistaLabels[$vista])): ?>
         <p class="text-sm text-gray-500 mt-1">
             Filtrando: <strong><?= sanitize($vistaLabels[$vista]) ?></strong>

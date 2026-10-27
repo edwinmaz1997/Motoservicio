@@ -29,8 +29,8 @@ $pageTitle = 'Editar Orden';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 <div class="flex items-center gap-3 mb-6">
-    <a href="view.php?id=<?= $id ?>" class="text-gray-500 hover:text-gray-700"><i class="fas fa-arrow-left"></i></a>
-    <h1 class="text-2xl font-bold text-gray-800">Editar Orden <?= sanitize($o['numero_orden']) ?></h1>
+    <a href="view.php?id=<?= $id ?>" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex-shrink-0"><i class="fas fa-arrow-left text-sm"></i></a>
+    <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Editar Orden <?= sanitize($o['numero_orden']) ?></h1>
 </div>
 <div class="bg-white rounded-xl shadow p-6 max-w-2xl">
     <form method="POST">

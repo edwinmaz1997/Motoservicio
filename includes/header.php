@@ -37,6 +37,17 @@ function navActive($dir) {
     <title><?= sanitize($pageTitle ?? APP_NAME) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Aplicación instalable -->
+    <link rel="manifest" href="<?= BASE_URL ?>/manifest.json">
+    <meta name="theme-color" content="<?= $_colorPrim ?>">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="<?= sanitize($_appName) ?>">
+    <link rel="icon" href="<?= BASE_URL ?>/assets/icons/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>/assets/icons/icon-32.png">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>/assets/icons/icon-180.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -345,6 +356,14 @@ function navActive($dir) {
                 <div class="text-[11px] text-white/40 truncate"><?= sanitize($ROLES[$user['rol_id']] ?? '') ?></div>
             </div>
         </div>
+
+        <!-- Instalar la app (solo si el navegador lo ofrece) -->
+        <button id="btn-instalar" type="button" hidden
+                class="w-full flex items-center gap-3 px-2.5 py-2 rounded-lg text-[13px]
+                       text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+            <i class="fas fa-circle-down w-5 text-center flex-shrink-0 text-[12px]"></i>
+            <span x-show="sidebarOpen || mobileOpen">Instalar app</span>
+        </button>
 
         <!-- Cerrar sesión -->
         <a href="<?= BASE_URL ?>/logout.php" title="Cerrar sesión"

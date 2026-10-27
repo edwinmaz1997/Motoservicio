@@ -57,6 +57,15 @@ try {
     <title>Entrar — <?= sanitize($marca['nombre']) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="manifest" href="<?= BASE_URL ?>/manifest.json">
+    <meta name="theme-color" content="<?= $marca['color_primario'] ?>">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="<?= sanitize($marca['nombre']) ?>">
+    <link rel="icon" href="<?= BASE_URL ?>/assets/icons/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= BASE_URL ?>/assets/icons/icon-32.png">
+    <link rel="apple-touch-icon" href="<?= BASE_URL ?>/assets/icons/icon-180.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -181,5 +190,10 @@ try {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script>
+if ('serviceWorker' in navigator) {
+    addEventListener('load', () => navigator.serviceWorker.register('<?= BASE_URL ?>/sw.js', { scope: '/' }).catch(() => {}));
+}
+</script>
 </body>
 </html>

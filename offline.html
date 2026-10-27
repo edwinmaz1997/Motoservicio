@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin conexión — Motoservicio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *{ box-sizing:border-box; margin:0; padding:0; }
+        body{
+            font-family:'Inter',system-ui,sans-serif;
+            background:#f6f8fb; color:#0f172a;
+            min-height:100vh; min-height:100dvh;
+            display:flex; align-items:center; justify-content:center;
+            padding:24px; text-align:center;
+            -webkit-font-smoothing:antialiased;
+        }
+        .caja{ max-width:340px; }
+        img{ width:64px; height:64px; border-radius:16px; margin-bottom:22px; }
+        h1{ font-size:19px; font-weight:600; letter-spacing:-.015em; margin-bottom:8px; }
+        p{ font-size:14px; color:#667085; line-height:1.55; margin-bottom:24px; }
+        button{
+            font:inherit; font-size:14px; font-weight:500;
+            background:#0f172a; color:#fff; border:0;
+            padding:11px 22px; border-radius:10px; cursor:pointer;
+        }
+        button:active{ transform:translateY(1px); }
+        .nota{ font-size:12px; color:#98a2b3; margin-top:20px; }
+    </style>
+</head>
+<body>
+    <div class="caja">
+        <img src="/assets/icons/icon-192.png" alt="">
+        <h1>Sin conexión</h1>
+        <p>No se pudo contactar al servidor. Revisa tu conexión y vuelve a intentar.</p>
+        <button onclick="location.reload()">Reintentar</button>
+        <p class="nota">Los datos del taller se consultan en línea, así que necesitas conexión para trabajar.</p>
+    </div>
+    <script>
+        addEventListener('online', () => location.reload());
+    </script>
+</body>
+</html>

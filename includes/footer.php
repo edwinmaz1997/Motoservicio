@@ -6,6 +6,48 @@
 // Las transiciones se activan tras la carga: evita el salto del menú al navegar
 requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('ready')));
 </script>
+<script>
+// Registro del service worker y botón de instalación
+(function () {
+    if ('serviceWorker' in navigator) {
+        addEventListener('load', () => {
+            navigator.serviceWorker.register('<?= BASE_URL ?>/sw.js', { scope: '/' })
+                .catch(() => {});
+        });
+    }
+
+    let promptInstalar = null;
+    const btn = document.getElementById('btn-instalar');
+
+    addEventListener('beforeinstallprompt', e => {
+        e.preventDefault();
+        promptInstalar = e;
+        if (btn) btn.hidden = false;
+    });
+
+    if (btn) {
+        btn.addEventListener('click', async () => {
+            if (!promptInstalar) return;
+            promptInstalar.prompt();
+            await promptInstalar.userChoice;
+            promptInstalar = null;
+            btn.hidden = true;
+        });
+    }
+
+    addEventListener('appinstalled', () => { if (btn) btn.hidden = true; });
+
+    // En iOS no existe el prompt: se instala desde Compartir > Añadir a inicio
+    const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const instalada = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    if (esIOS && !instalada && btn) {
+        btn.hidden = false;
+        btn.addEventListener('click', () => {
+            alert('Para instalar: toca el botón Compartir y elige "Añadir a pantalla de inicio".');
+        });
+    }
+})();
+</script>
 <!-- Búsqueda y filtros en vivo -->
 <script>
 (function () {

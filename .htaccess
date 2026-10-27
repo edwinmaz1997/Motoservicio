@@ -10,3 +10,25 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Quitar .php de las URLs
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# --- Aplicación instalable ---
+<IfModule mod_mime.c>
+    AddType application/manifest+json .webmanifest
+    AddType application/json .json
+    AddType text/javascript .js
+</IfModule>
+
+# El service worker no debe quedar cacheado: así las actualizaciones llegan
+<FilesMatch "sw\.js$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Service-Worker-Allowed "/"
+    </IfModule>
+</FilesMatch>
+
+# Iconos y tipografías: caché larga
+<FilesMatch "\.(png|jpe?g|svg|webp|ico|woff2?)$">
+    <IfModule mod_headers.c>
+        Header set Cache-Control "public, max-age=2592000"
+    </IfModule>
+</FilesMatch>

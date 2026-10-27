@@ -60,6 +60,8 @@ function navActive($dir) {
     *{ -webkit-tap-highlight-color: transparent; }
     /* Nada se anima durante la carga de la página */
     #sidebar, #main{ transition: none; }
+    #sidebar{ height:100vh; height:100dvh; }
+    #sidebar nav{ -webkit-overflow-scrolling: touch; }
     body.ready #sidebar, body.ready #main{
         transition: width .2s ease, margin .2s ease, transform .2s ease;
     }
@@ -248,7 +250,9 @@ function navActive($dir) {
     }
     </style>
 </head>
-<body x-data="{ sidebarOpen: window.innerWidth >= 1024, mobileOpen: false }" @resize.window="sidebarOpen = window.innerWidth >= 1024">
+<body x-data="{ sidebarOpen: window.innerWidth >= 1024, mobileOpen: false }"
+      @resize.window="sidebarOpen = window.innerWidth >= 1024"
+      :class="mobileOpen ? 'overflow-hidden lg:overflow-auto' : ''">
 
 <!-- Overlay móvil -->
 <div x-show="mobileOpen" x-cloak @click="mobileOpen=false"
@@ -258,6 +262,7 @@ function navActive($dir) {
 <aside id="sidebar"
        class="fixed top-0 left-0 h-screen w-64 text-white z-40 flex flex-col
               -translate-x-full lg:translate-x-0"
+       style="height:100dvh"
        :class="[
            mobileOpen ? 'translate-x-0' : '-translate-x-full',
            sidebarOpen ? 'lg:w-64' : 'lg:w-[68px]'
@@ -284,7 +289,7 @@ function navActive($dir) {
     </div>
 
     <!-- Navegación -->
-    <nav class="flex-1 overflow-y-auto overflow-x-hidden py-3 px-2.5 space-y-0.5">
+    <nav class="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain py-3 px-2.5 space-y-0.5">
         <?php
         $links = [
             ['dashboard',  '/',                   'fa-gauge-high',    'Inicio'],

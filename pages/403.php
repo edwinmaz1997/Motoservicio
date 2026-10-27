@@ -17,6 +17,7 @@ if (!defined('APP_NAME')) require_once __DIR__ . '/../config/config.php';
 </head>
 <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm max-w-md w-full p-8 text-center">
+        <img src="<?= BASE_URL ?>/assets/brand/logo.png" alt="" class="h-8 w-auto object-contain mx-auto mb-6 opacity-70">
         <div class="w-14 h-14 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4 text-2xl">
             <i class="fas fa-lock"></i>
         </div>

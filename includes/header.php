@@ -17,6 +17,9 @@ if (!empty($user['sucursal_id'])) {
 $_colorPrim = $_sucConfig['color_primario']   ?? '#1d4ed8';
 $_colorSec  = $_sucConfig['color_secundario'] ?? '#1e40af';
 $_logoPath  = $_sucConfig['logo_path'] ?? null;
+// Logo de marca incluido en el sistema; la sucursal puede sustituirlo
+$_logoMarca      = BASE_URL . '/assets/brand/logo-light.png';   // para fondo oscuro
+$_simboloMarca   = BASE_URL . '/assets/brand/simbolo.png';
 $_appName   = $_sucConfig['nombre']    ?? APP_NAME;
 $flash = getFlash();
 global $ROLES;
@@ -282,12 +285,18 @@ function navActive($dir) {
     <!-- Marca -->
     <div class="flex items-center gap-2.5 px-4 h-16 border-b border-blue-800 flex-shrink-0">
         <?php if ($_logoPath): ?>
-        <img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt="" class="w-8 h-8 object-contain rounded-md flex-shrink-0 bg-white/10 p-0.5">
+            <img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt=""
+                 class="w-8 h-8 object-contain rounded-md flex-shrink-0 bg-white/10 p-0.5">
+            <span x-show="sidebarOpen || mobileOpen"
+                  class="text-[13.5px] font-semibold truncate tracking-tight"><?= sanitize($_appName) ?></span>
         <?php else: ?>
-        <span class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-base flex-shrink-0">🏍️</span>
+            <img src="<?= $_simboloMarca ?>" alt=""
+                 x-show="!sidebarOpen && !mobileOpen" x-cloak
+                 class="w-8 h-8 object-contain flex-shrink-0">
+            <img src="<?= $_logoMarca ?>" alt="<?= sanitize($_appName) ?>"
+                 x-show="sidebarOpen || mobileOpen"
+                 class="h-7 w-auto object-contain object-left">
         <?php endif; ?>
-        <span x-show="sidebarOpen || mobileOpen"
-              class="text-[13.5px] font-semibold truncate tracking-tight"><?= sanitize($_appName) ?></span>
         <button @click="sidebarOpen = !sidebarOpen"
                 class="hidden lg:flex ml-auto w-6 h-6 items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10"
                 :title="sidebarOpen ? 'Contraer menú' : 'Expandir menú'">
@@ -381,9 +390,11 @@ function navActive($dir) {
         <i class="fas fa-bars"></i>
     </button>
     <?php if ($_logoPath): ?>
-    <img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt="" class="w-7 h-7 object-contain rounded bg-white/10 p-0.5">
-    <?php else: ?><span>🏍️</span><?php endif; ?>
-    <span class="font-semibold text-[14px] truncate tracking-tight"><?= sanitize($_appName) ?></span>
+        <img src="<?= BASE_URL ?>/<?= sanitize($_logoPath) ?>" alt="" class="w-7 h-7 object-contain rounded bg-white/10 p-0.5">
+        <span class="font-semibold text-[14px] truncate tracking-tight"><?= sanitize($_appName) ?></span>
+    <?php else: ?>
+        <img src="<?= $_logoMarca ?>" alt="<?= sanitize($_appName) ?>" class="h-6 w-auto object-contain">
+    <?php endif; ?>
     <div class="ml-auto w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[11px] font-semibold">
         <?= strtoupper(substr($user['nombre'],0,1) . substr($user['apellido'],0,1)) ?>
     </div>

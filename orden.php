@@ -94,6 +94,7 @@ $telLimpio = $o ? preg_replace('/[^0-9]/', '', $o['taller_tel'] ?? '') : '';
     <!-- Enlace inválido -->
     <div class="min-h-screen flex items-center justify-center p-6">
         <div class="bg-white border border-slate-200 rounded-2xl max-w-sm w-full p-8 text-center">
+            <img src="<?= BASE_URL ?>/assets/brand/logo.png" alt="" class="h-9 w-auto object-contain mx-auto mb-6 opacity-70">
             <div class="w-14 h-14 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-4 text-xl">
                 <i class="fas fa-link-slash"></i>
             </div>
@@ -111,17 +112,21 @@ $telLimpio = $o ? preg_replace('/[^0-9]/', '', $o['taller_tel'] ?? '') : '';
     <div class="max-w-lg mx-auto px-5 pt-7 pb-8">
         <div class="flex items-center gap-3 mb-7">
             <?php if ($o['logo_path']): ?>
-            <img src="<?= BASE_URL ?>/<?= sanitize($o['logo_path']) ?>" alt=""
-                 class="w-10 h-10 object-contain rounded-lg bg-white/10 p-1">
+                <img src="<?= BASE_URL ?>/<?= sanitize($o['logo_path']) ?>" alt=""
+                     class="w-10 h-10 object-contain rounded-lg bg-white/10 p-1">
+                <div class="min-w-0">
+                    <div class="text-[14px] font-semibold truncate"><?= sanitize($o['taller']) ?></div>
+                    <?php if ($o['taller_tel']): ?>
+                    <div class="text-[12px] text-white/50"><?= sanitize($o['taller_tel']) ?></div>
+                    <?php endif; ?>
+                </div>
             <?php else: ?>
-            <span class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">🏍️</span>
-            <?php endif; ?>
-            <div class="min-w-0">
-                <div class="text-[14px] font-semibold truncate"><?= sanitize($o['taller']) ?></div>
+                <img src="<?= BASE_URL ?>/assets/brand/logo-light.png" alt="<?= sanitize($o['taller']) ?>"
+                     class="h-9 w-auto object-contain">
                 <?php if ($o['taller_tel']): ?>
-                <div class="text-[12px] text-white/50"><?= sanitize($o['taller_tel']) ?></div>
+                <div class="text-[12px] text-white/50 ml-auto flex-shrink-0"><?= sanitize($o['taller_tel']) ?></div>
                 <?php endif; ?>
-            </div>
+            <?php endif; ?>
         </div>
 
         <div class="text-[12.5px] text-white/50 mb-1">Orden <?= sanitize($o['numero_orden']) ?></div>

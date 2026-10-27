@@ -1,7 +1,7 @@
 {
-  "name": "DIAZ Motoservicio",
+  "name": "Motoservicio DIAZ",
   "short_name": "Motoservicio",
-  "description": "Órdenes de servicio, inventario, caja y reportes del taller.",
+  "description": "Taller, repuestos y motos. Órdenes, inventario, caja y reportes.",
   "start_url": "/index.php",
   "scope": "/",
   "display": "standalone",
@@ -10,34 +10,82 @@
   "theme_color": "#0f172a",
   "lang": "es-GT",
   "dir": "ltr",
-  "categories": ["business", "productivity"],
+  "categories": [
+    "business",
+    "productivity"
+  ],
   "icons": [
-    { "src": "/assets/icons/icon-48.png",  "sizes": "48x48",   "type": "image/png" },
-    { "src": "/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/assets/icons/icon-256.png", "sizes": "256x256", "type": "image/png" },
-    { "src": "/assets/icons/icon-384.png", "sizes": "384x384", "type": "image/png" },
-    { "src": "/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/assets/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/assets/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/assets/icons/icon-48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-256.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/assets/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
   "shortcuts": [
     {
       "name": "Nueva orden",
       "short_name": "Orden",
       "url": "/pages/ordenes/create.php",
-      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Nueva venta",
       "short_name": "Venta",
       "url": "/pages/ventas/create.php",
-      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     },
     {
       "name": "Órdenes en taller",
       "short_name": "En taller",
       "url": "/pages/ordenes/index.php?vista=activas",
-      "icons": [{ "src": "/assets/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [
+        {
+          "src": "/assets/icons/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

@@ -240,7 +240,17 @@ $tipos = [
 $estadoColors = ['abierta'=>'bg-blue-100 text-blue-700','en_proceso'=>'bg-yellow-100 text-yellow-700','lista'=>'bg-green-100 text-green-700','entregada'=>'bg-gray-100 text-gray-600','cancelada'=>'bg-red-100 text-red-700'];
 ?>
 
-<div class="flex items-center justify-between mb-5">
+<!-- Encabezado que solo aparece al imprimir -->
+<div class="hidden print:flex items-center justify-between border-b border-slate-300 pb-3 mb-5">
+    <img src="<?= BASE_URL ?>/assets/brand/logo.png" alt="" class="h-10 w-auto object-contain">
+    <div class="text-right text-[11px] text-slate-500">
+        <div class="font-semibold text-slate-800 text-[13px]"><?= sanitize($tipos[$tipo][0]) ?></div>
+        <div><?= formatDate($fechaDesde) ?><?= $fechaDesde !== $fechaHasta ? ' al ' . formatDate($fechaHasta) : '' ?></div>
+        <div><?= sanitize($_SESSION['sucursal_nombre'] ?? '') ?></div>
+    </div>
+</div>
+
+<div class="flex items-center justify-between mb-5 print:hidden">
     <h1 class="text-[22px] lg:text-[25px] font-semibold text-slate-900 tracking-tight">Reportes</h1>
     <button onclick="window.print()" class="bg-gray-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-gray-800 no-print">
         <i class="fas fa-print mr-1"></i> Imprimir

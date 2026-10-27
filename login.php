@@ -103,12 +103,13 @@ try {
 <div class="panel grid-bg hidden lg:flex flex-col justify-between p-12 text-white relative overflow-hidden">
     <div class="flex items-center gap-3">
         <?php if ($marca['logo_path']): ?>
-        <img src="<?= BASE_URL ?>/<?= sanitize($marca['logo_path']) ?>" alt=""
-             class="w-11 h-11 object-contain rounded-lg bg-white/10 p-1">
+            <img src="<?= BASE_URL ?>/<?= sanitize($marca['logo_path']) ?>" alt=""
+                 class="w-11 h-11 object-contain rounded-lg bg-white/10 p-1">
+            <span class="text-[15px] font-semibold tracking-tight"><?= sanitize($marca['nombre']) ?></span>
         <?php else: ?>
-        <span class="w-11 h-11 rounded-lg bg-white/10 flex items-center justify-center text-xl">🏍️</span>
+            <img src="<?= BASE_URL ?>/assets/brand/logo-light.png" alt="<?= sanitize($marca['nombre']) ?>"
+                 class="h-10 w-auto object-contain">
         <?php endif; ?>
-        <span class="text-[15px] font-semibold tracking-tight"><?= sanitize($marca['nombre']) ?></span>
     </div>
 
     <div class="max-w-md">
@@ -136,12 +137,13 @@ try {
         <!-- Marca en móvil -->
         <div class="lg:hidden flex items-center gap-3 mb-10">
             <?php if ($marca['logo_path']): ?>
-            <img src="<?= BASE_URL ?>/<?= sanitize($marca['logo_path']) ?>" alt=""
-                 class="w-10 h-10 object-contain rounded-lg border border-slate-200 p-1">
+                <img src="<?= BASE_URL ?>/<?= sanitize($marca['logo_path']) ?>" alt=""
+                     class="w-10 h-10 object-contain rounded-lg border border-slate-200 p-1">
+                <span class="text-[15px] font-semibold text-slate-900 tracking-tight"><?= sanitize($marca['nombre']) ?></span>
             <?php else: ?>
-            <span class="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-lg">🏍️</span>
+                <img src="<?= BASE_URL ?>/assets/brand/logo.png" alt="<?= sanitize($marca['nombre']) ?>"
+                     class="h-10 w-auto object-contain">
             <?php endif; ?>
-            <span class="text-[15px] font-semibold text-slate-900 tracking-tight"><?= sanitize($marca['nombre']) ?></span>
         </div>
 
         <h2 class="text-[26px] font-semibold text-slate-900 tracking-tight mb-1.5">Entrar</h2>

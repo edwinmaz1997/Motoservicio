@@ -7,7 +7,7 @@
  * muestre una pantalla propia en vez del error del navegador.
  */
 
-const VERSION    = 'v3';
+const VERSION    = 'v4';
 const CACHE_APP  = `motoservicio-app-${VERSION}`;
 const CACHE_CDN  = `motoservicio-cdn-${VERSION}`;
 const SIN_RED    = '/offline.html';

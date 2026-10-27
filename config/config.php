@@ -1,7 +1,7 @@
 <?php
 ob_start(); // Buffer output — permite usar header() en cualquier punto
 
-define('APP_NAME', 'DIAZ Motoservicio');
+define('APP_NAME', 'Motoservicio DIAZ');
 define('APP_VERSION', '1.0.0');
 define('BASE_URL', 'https://motoserviciodiaz.nuevaexpress.com'); // Producción
 

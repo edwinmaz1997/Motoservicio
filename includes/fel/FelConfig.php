@@ -3,19 +3,40 @@
  * Acceso a la configuración FEL de una sucursal.
  */
 
+/**
+ * ¿Están creadas las tablas del módulo FEL?
+ * Permite que el sistema siga funcionando si aún no se ha corrido fel.sql.
+ */
+function felInstalado() {
+    static $instalado = null;
+    if ($instalado !== null) return $instalado;
+    try {
+        getDB()->query("SELECT 1 FROM fel_config LIMIT 1");
+        $instalado = true;
+    } catch (Exception $e) {
+        $instalado = false;
+    }
+    return $instalado;
+}
+
 function felConfig($sucursalId) {
     static $cache = [];
     if (isset($cache[$sucursalId])) return $cache[$sucursalId];
+    if (!felInstalado()) return null;
 
-    $db   = getDB();
-    $stmt = $db->prepare("SELECT * FROM fel_config WHERE sucursal_id = ? LIMIT 1");
-    $stmt->execute([$sucursalId]);
-    $cfg  = $stmt->fetch();
-
-    if (!$cfg) {
-        $db->prepare("INSERT INTO fel_config (sucursal_id) VALUES (?)")->execute([$sucursalId]);
+    try {
+        $db   = getDB();
+        $stmt = $db->prepare("SELECT * FROM fel_config WHERE sucursal_id = ? LIMIT 1");
         $stmt->execute([$sucursalId]);
-        $cfg = $stmt->fetch();
+        $cfg  = $stmt->fetch();
+
+        if (!$cfg) {
+            $db->prepare("INSERT INTO fel_config (sucursal_id) VALUES (?)")->execute([$sucursalId]);
+            $stmt->execute([$sucursalId]);
+            $cfg = $stmt->fetch();
+        }
+    } catch (Exception $e) {
+        $cfg = null;
     }
 
     $cache[$sucursalId] = $cfg;
@@ -27,7 +48,7 @@ function felConfig($sucursalId) {
  */
 function felHabilitado($sucursalId) {
     $cfg = felConfig($sucursalId);
-    if (!$cfg || !$cfg['activo']) return false;
+    if (!$cfg || empty($cfg['activo'])) return false;
     foreach (['usuario_firma','llave_firma','usuario_api','llave_api','nit_emisor','nombre_emisor'] as $campo) {
         if (empty($cfg[$campo])) return false;
     }

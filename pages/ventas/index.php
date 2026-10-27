@@ -67,7 +67,7 @@ require_once __DIR__ . '/../../includes/header.php';
 </div>
 
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">
-    <input type="text" name="q" value="<?= sanitize($search) ?>" placeholder="Buscar por # venta o cliente..."
+    <input type="search" name="q" value="<?= sanitize($search) ?>" placeholder="Buscar por # venta o cliente..."
            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     <input type="date" name="fecha" value="<?= sanitize($fecha) ?>"
            class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">

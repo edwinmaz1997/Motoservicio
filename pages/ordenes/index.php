@@ -114,7 +114,7 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">
     <?php if ($vista): ?><input type="hidden" name="vista" value="<?= sanitize($vista) ?>"><?php endif; ?>
-    <input type="text" name="q" value="<?= sanitize($search) ?>"
+    <input type="search" name="q" value="<?= sanitize($search) ?>"
            placeholder="Buscar por # orden, cliente, placa..."
            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     <select name="estado" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">

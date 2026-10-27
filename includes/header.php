@@ -216,6 +216,28 @@ function navActive($dir) {
     .bg-gray-50{ background:#fbfcfe !important; }
     .font-mono{ font-feature-settings:'tnum' 1; letter-spacing:-.01em; }
 
+    /* Búsqueda en vivo */
+    input[type=search]{
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2398a2b3' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E");
+        background-repeat:no-repeat;
+        background-position:left 12px center;
+        padding-left: 36px !important;
+    }
+    input[type=search]::-webkit-search-cancel-button{
+        -webkit-appearance:none; appearance:none;
+        width:14px; height:14px; cursor:pointer;
+        background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2398a2b3' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M18 6L6 18M6 6l12 12'/%3E%3C/svg%3E") no-repeat center;
+    }
+    /* El botón de lupa se oculta: la búsqueda ya corre sola */
+    .search-indicator{ display:none !important; }
+    form.is-searching input[type=search]{
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='%2398a2b3' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 3a9 9 0 1 0 9 9' /%3E%3C/svg%3E");
+        animation: none;
+    }
+    form.is-searching input[type=search]{ opacity:.7; }
+    form.is-searching input[name="q"]{ opacity:.65; }
+    @keyframes spin{ to{ transform: rotate(360deg); } }
+
     @media (prefers-reduced-motion: reduce){
         *{ transition:none !important; animation:none !important; }
     }

@@ -27,7 +27,7 @@ require_once __DIR__ . '/../../includes/header.php';
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm"><i class="fas fa-plus mr-1"></i> Nueva compra</a>
 </div>
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">
-    <input type="text" name="q" value="<?= sanitize($search) ?>" placeholder="Buscar por # compra o proveedor..."
+    <input type="search" name="q" value="<?= sanitize($search) ?>" placeholder="Buscar por # compra o proveedor..."
            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     <input type="date" name="fecha" value="<?= sanitize($fecha) ?>" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     <button class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-search"></i></button>

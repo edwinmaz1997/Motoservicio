@@ -44,7 +44,7 @@ require_once __DIR__ . '/../../includes/header.php';
 
 <!-- Búsqueda -->
 <form method="GET" class="mb-4 flex gap-2">
-    <input type="text" name="q" value="<?= sanitize($search) ?>"
+    <input type="search" name="q" value="<?= sanitize($search) ?>"
            placeholder="Buscar por nombre, teléfono, NIT, DPI..."
            class="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
     <button class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-800">

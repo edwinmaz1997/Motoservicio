@@ -362,9 +362,22 @@ require_once __DIR__ . '/../../includes/header.php';
         <div class="p-6 space-y-3">
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">NIT del receptor</label>
-                <input type="text" x-model="felNit" placeholder="CF para consumidor final"
-                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500">
-                <p class="text-xs text-gray-400 mt-1">Déjalo en CF si el cliente no da NIT.</p>
+                <div class="relative">
+                    <input type="text" x-model="felNit" @input.debounce.500ms="buscarNit()" @blur="buscarNit()"
+                           placeholder="CF para consumidor final"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-9 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <span x-show="buscandoNit" class="absolute right-3 top-2.5 text-gray-400">
+                        <i class="fas fa-circle-notch fa-spin text-xs"></i>
+                    </span>
+                    <span x-show="!buscandoNit && nitEncontrado === true" class="absolute right-3 top-2.5 text-green-500">
+                        <i class="fas fa-check text-xs"></i>
+                    </span>
+                </div>
+                <p class="text-xs mt-1"
+                   :class="nitEncontrado === false ? 'text-amber-600' : 'text-gray-400'"
+                   x-text="nitEncontrado === false
+                        ? 'NIT no registrado — escribe el nombre manualmente.'
+                        : 'Déjalo en CF si el cliente no da NIT.'"></p>
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Nombre del receptor</label>
@@ -393,7 +406,7 @@ require_once __DIR__ . '/../../includes/header.php';
             </div>
 
             <div class="flex gap-3 pt-2">
-                <button type="button" @click="submitVenta(true)"
+                <button type="button" @click="confirmarFel()"
                         class="bg-teal-600 text-white px-5 py-2.5 rounded-lg text-sm hover:bg-teal-700 font-medium">
                     <i class="fas fa-paper-plane mr-1"></i> Emitir factura
                 </button>
@@ -405,6 +418,46 @@ require_once __DIR__ . '/../../includes/header.php';
 </div>
 <?php endif; ?>
 
+
+<!-- ===== CONFIRMACIÓN DE EMISIÓN ===== -->
+<div x-show="modalConfirmar" x-cloak @click.self="modalConfirmar=false"
+     class="fixed inset-0 bg-black bg-opacity-60 z-[60] flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden">
+        <div class="bg-amber-50 border-b border-amber-200 px-6 py-4 flex items-start gap-3">
+            <div class="w-9 h-9 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                <i class="fas fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="font-semibold text-gray-800">¿Emitir la factura?</h3>
+                <p class="text-xs text-gray-600 mt-0.5">Una vez certificada ante SAT solo se puede anular, no editar.</p>
+            </div>
+        </div>
+        <div class="px-6 py-4 space-y-2 text-sm">
+            <div class="flex justify-between">
+                <span class="text-gray-500">NIT</span>
+                <span class="font-mono font-medium" x-text="felNit || 'CF'"></span>
+            </div>
+            <div class="flex justify-between gap-4">
+                <span class="text-gray-500 flex-shrink-0">Nombre</span>
+                <span class="font-medium text-right" x-text="felNombre || 'CONSUMIDOR FINAL'"></span>
+            </div>
+            <div class="flex justify-between pt-2 border-t font-bold">
+                <span>Total</span>
+                <span class="text-teal-700" x-text="'Q ' + total.toFixed(2)"></span>
+            </div>
+        </div>
+        <div class="px-6 pb-5 flex gap-2">
+            <button type="button" @click="modalConfirmar=false; submitVenta(true)"
+                    class="flex-1 bg-teal-600 text-white py-2.5 rounded-lg text-sm hover:bg-teal-700 font-medium">
+                Sí, emitir
+            </button>
+            <button type="button" @click="modalConfirmar=false"
+                    class="flex-1 bg-gray-100 text-gray-700 py-2.5 rounded-lg text-sm hover:bg-gray-200">
+                Revisar
+            </button>
+        </div>
+    </div>
+</div>
 </div>
 
 <script>
@@ -419,9 +472,12 @@ function ventaForm() {
         categoriaFiltro: '',
         productosFiltrados: <?= count($productos) ?>,
         modalFel: false,
+        modalConfirmar: false,
         felNit: 'CF',
         felNombre: '',
         felCorreo: '',
+        buscandoNit: false,
+        nitEncontrado: null,
 
         productoVisible(id) {
             const p = productosData[id];
@@ -502,7 +558,40 @@ function ventaForm() {
                 this.felNombre = '';
                 this.felCorreo = '';
             }
+            this.nitEncontrado = null;
             this.modalFel = true;
+        },
+
+        // Busca el NIT entre los clientes y rellena nombre y correo
+        async buscarNit() {
+            const nit = (this.felNit || '').trim();
+            if (nit === '') { this.nitEncontrado = null; return; }
+            this.buscandoNit = true;
+            try {
+                const res = await fetch(`<?= BASE_URL ?>/api/buscar_nit.php?nit=${encodeURIComponent(nit)}`);
+                const d = await res.json();
+                if (d.generico) {
+                    this.felNombre = 'CONSUMIDOR FINAL';
+                    this.felCorreo = '';
+                    this.nitEncontrado = null;
+                } else if (d.encontrado) {
+                    this.felNombre = d.nombre;
+                    if (d.correo) this.felCorreo = d.correo;
+                    this.nitEncontrado = true;
+                } else {
+                    this.nitEncontrado = false;
+                }
+            } catch (e) {
+                this.nitEncontrado = null;
+            }
+            this.buscandoNit = false;
+        },
+
+        confirmarFel() {
+            if (!this.felNombre || !this.felNombre.trim()) {
+                this.felNombre = 'CONSUMIDOR FINAL';
+            }
+            this.modalConfirmar = true;
         },
 
         submitVenta(conFel) {

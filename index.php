@@ -63,52 +63,77 @@ $ordenesDetalle = $stmt->fetchAll();
     <p class="text-gray-500 text-sm"><?= date('l, d \d\e F \d\e Y') ?> — <?= sanitize($_SESSION['sucursal_nombre']) ?></p>
 </div>
 
+<?php
+$cards = [
+    [
+        'valor'  => $ordenesAbiertas,
+        'label'  => 'Órdenes abiertas',
+        'icono'  => 'fa-clipboard-list',
+        'color'  => 'bg-blue-100 text-blue-700',
+        'url'    => BASE_URL . '/pages/ordenes/index.php?vista=activas',
+    ],
+    [
+        'valor'  => $motosSalenHoy,
+        'label'  => 'Salen hoy',
+        'icono'  => 'fa-calendar-check',
+        'color'  => 'bg-green-100 text-green-700',
+        'url'    => BASE_URL . '/pages/ordenes/index.php?vista=hoy',
+    ],
+    [
+        'valor'  => $motosVencidas,
+        'label'  => 'Fecha vencida',
+        'icono'  => 'fa-exclamation-triangle',
+        'color'  => 'bg-red-100 text-red-700',
+        'url'    => BASE_URL . '/pages/ordenes/index.php?vista=vencidas',
+    ],
+    [
+        'valor'  => formatMoney($ventasHoy),
+        'label'  => 'Recaudado hoy',
+        'icono'  => 'fa-money-bill-wave',
+        'color'  => 'bg-yellow-100 text-yellow-700',
+        'url'    => BASE_URL . '/pages/reportes/index.php?tipo=anticipos&rango=hoy',
+    ],
+];
+?>
+
 <!-- Cards resumen -->
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-
-    <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-        <div class="bg-blue-100 text-blue-700 rounded-full p-3 text-xl"><i class="fas fa-clipboard-list"></i></div>
-        <div>
-            <div class="text-2xl font-bold text-gray-800"><?= $ordenesAbiertas ?></div>
-            <div class="text-sm text-gray-500">Órdenes abiertas</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <?php foreach ($cards as $c): ?>
+    <a href="<?= $c['url'] ?>"
+       class="group bg-white rounded-xl shadow p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <div class="<?= $c['color'] ?> rounded-full p-3 text-xl flex-shrink-0">
+            <i class="fas <?= $c['icono'] ?>"></i>
         </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-        <div class="bg-green-100 text-green-700 rounded-full p-3 text-xl"><i class="fas fa-calendar-check"></i></div>
-        <div>
-            <div class="text-2xl font-bold text-gray-800"><?= $motosSalenHoy ?></div>
-            <div class="text-sm text-gray-500">Salen hoy</div>
+        <div class="min-w-0">
+            <div class="text-2xl font-bold text-gray-800 truncate"><?= $c['valor'] ?></div>
+            <div class="text-sm text-gray-500"><?= $c['label'] ?></div>
         </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-        <div class="bg-red-100 text-red-700 rounded-full p-3 text-xl"><i class="fas fa-exclamation-triangle"></i></div>
-        <div>
-            <div class="text-2xl font-bold text-gray-800"><?= $motosVencidas ?></div>
-            <div class="text-sm text-gray-500">Fecha vencida</div>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-        <div class="bg-yellow-100 text-yellow-700 rounded-full p-3 text-xl"><i class="fas fa-money-bill-wave"></i></div>
-        <div>
-            <div class="text-2xl font-bold text-gray-800"><?= formatMoney($ventasHoy) ?></div>
-            <div class="text-sm text-gray-500">Recaudado hoy</div>
-        </div>
-    </div>
-
+        <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-gray-400 text-sm flex-shrink-0"></i>
+    </a>
+    <?php endforeach; ?>
 </div>
 
 <!-- Segunda fila de cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-    <div class="bg-white rounded-xl shadow p-5 flex items-center gap-4">
-        <div class="bg-purple-100 text-purple-700 rounded-full p-3 text-xl"><i class="fas fa-hand-holding-usd"></i></div>
-        <div>
-            <div class="text-2xl font-bold text-gray-800"><?= formatMoney($anticiposPendientes) ?></div>
+    <a href="<?= BASE_URL ?>/pages/ordenes/index.php?vista=con_saldo"
+       class="group bg-white rounded-xl shadow p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <div class="bg-purple-100 text-purple-700 rounded-full p-3 text-xl flex-shrink-0"><i class="fas fa-hand-holding-usd"></i></div>
+        <div class="min-w-0">
+            <div class="text-2xl font-bold text-gray-800 truncate"><?= formatMoney($anticiposPendientes) ?></div>
             <div class="text-sm text-gray-500">Anticipos en órdenes activas</div>
         </div>
-    </div>
+        <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-gray-400 text-sm flex-shrink-0"></i>
+    </a>
+
+    <a href="<?= BASE_URL ?>/pages/ventas/index.php?fecha=<?= $hoy ?>"
+       class="group bg-white rounded-xl shadow p-5 flex items-center gap-4 hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <div class="bg-teal-100 text-teal-700 rounded-full p-3 text-xl flex-shrink-0"><i class="fas fa-cash-register"></i></div>
+        <div class="min-w-0">
+            <div class="text-2xl font-bold text-gray-800 truncate">Ventas de hoy</div>
+            <div class="text-sm text-gray-500">Ver el detalle del mostrador</div>
+        </div>
+        <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-gray-400 text-sm flex-shrink-0"></i>
+    </a>
 </div>
 
 <!-- Tabla de órdenes activas -->

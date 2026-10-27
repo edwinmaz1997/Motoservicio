@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../includes/header.php';
 $db     = getDB();
 $search = trim($_GET['q'] ?? '');
 $estado = $_GET['estado'] ?? '';
+$vista  = $_GET['vista']  ?? '';   // activas | hoy | vencidas | con_saldo
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 20;
 $offset = ($page - 1) * $limit;
@@ -21,6 +22,32 @@ if ($estado) {
     $where  .= " AND o.estado = ?";
     $params[] = $estado;
 }
+
+// Vistas rápidas desde el dashboard
+$hoyFiltro = date('Y-m-d');
+switch ($vista) {
+    case 'activas':
+        $where .= " AND o.estado IN ('abierta','en_proceso')";
+        break;
+    case 'hoy':
+        $where .= " AND o.estado IN ('abierta','en_proceso') AND o.fecha_salida_esperada = ?";
+        $params[] = $hoyFiltro;
+        break;
+    case 'vencidas':
+        $where .= " AND o.estado IN ('abierta','en_proceso') AND o.fecha_salida_esperada < ?";
+        $params[] = $hoyFiltro;
+        break;
+    case 'con_saldo':
+        $where .= " AND o.estado IN ('abierta','en_proceso') AND o.anticipo > 0";
+        break;
+}
+
+$vistaLabels = [
+    'activas'   => 'Órdenes abiertas',
+    'hoy'       => 'Motos que salen hoy',
+    'vencidas'  => 'Órdenes con fecha vencida',
+    'con_saldo' => 'Órdenes activas con anticipo',
+];
 
 $total = $db->prepare("SELECT COUNT(*) FROM ordenes o JOIN clientes c ON c.id=o.cliente_id JOIN motocicletas m ON m.id=o.motocicleta_id $where");
 $total->execute($params);
@@ -62,14 +89,23 @@ $estadoLabels = [
 ];
 ?>
 
-<div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold text-gray-800">Órdenes de Servicio</h1>
+<div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-800">Órdenes de Servicio</h1>
+        <?php if ($vista && isset($vistaLabels[$vista])): ?>
+        <p class="text-sm text-gray-500 mt-1">
+            Filtrando: <strong><?= sanitize($vistaLabels[$vista]) ?></strong>
+            <a href="index.php" class="text-blue-600 ml-2 hover:underline">Ver todas</a>
+        </p>
+        <?php endif; ?>
+    </div>
     <a href="create.php" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 text-sm">
         <i class="fas fa-plus mr-1"></i> Nueva orden
     </a>
 </div>
 
 <form method="GET" class="mb-4 flex gap-2 flex-wrap">
+    <?php if ($vista): ?><input type="hidden" name="vista" value="<?= sanitize($vista) ?>"><?php endif; ?>
     <input type="text" name="q" value="<?= sanitize($search) ?>"
            placeholder="Buscar por # orden, cliente, placa..."
            class="flex-1 min-w-48 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -81,7 +117,7 @@ $estadoLabels = [
     </select>
     <button class="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"><i class="fas fa-search"></i></button>
     <?php if ($search || $estado): ?>
-    <a href="index.php" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">Limpiar</a>
+    <a href="?vista=<?= urlencode($vista) ?>" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm">Limpiar</a>
     <?php endif; ?>
 </form>
 
@@ -156,7 +192,7 @@ $estadoLabels = [
         <span><?= $totalRows ?> órdenes</span>
         <div class="flex gap-1">
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-            <a href="?page=<?= $i ?>&q=<?= urlencode($search) ?>&estado=<?= urlencode($estado) ?>"
+            <a href="?page=<?= $i ?>&q=<?= urlencode($search) ?>&estado=<?= urlencode($estado) ?>&vista=<?= urlencode($vista) ?>"
                class="px-3 py-1 rounded <?= $i===$page?'bg-blue-700 text-white':'bg-gray-100 hover:bg-gray-200' ?>">
                 <?= $i ?>
             </a>

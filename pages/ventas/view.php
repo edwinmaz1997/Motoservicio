@@ -204,24 +204,34 @@ require_once __DIR__ . '/../../includes/header.php';
             </div>
             <button onclick="document.getElementById('modal-fel').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" class="p-6 space-y-3">
+        <form method="POST" class="p-6 space-y-3" onsubmit="return confirmarEmision(this)">
             <input type="hidden" name="accion" value="emitir_fel">
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">NIT del receptor</label>
-                <input type="text" name="fel_nit" value="<?= sanitize($v['cliente_nit'] ?: 'CF') ?>"
-                       class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <div class="relative">
+                    <input type="text" name="fel_nit" id="fel_nit" value="<?= sanitize($v['cliente_nit'] ?: 'CF') ?>"
+                           oninput="buscarNitDebounce()" onblur="buscarNit()"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 pr-9 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-500">
+                    <span id="nit-spinner" class="hidden absolute right-3 top-2.5 text-gray-400"><i class="fas fa-circle-notch fa-spin text-xs"></i></span>
+                    <span id="nit-check"   class="hidden absolute right-3 top-2.5 text-green-500"><i class="fas fa-check text-xs"></i></span>
+                </div>
+                <p id="nit-aviso" class="hidden text-xs text-amber-600 mt-1">NIT no registrado — escribe el nombre manualmente.</p>
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Nombre del receptor</label>
-                <input type="text" name="fel_nombre" value="<?= sanitize(trim($v['cliente']) ?: 'CONSUMIDOR FINAL') ?>"
+                <input type="text" name="fel_nombre" id="fel_nombre" value="<?= sanitize(trim($v['cliente']) ?: 'CONSUMIDOR FINAL') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
             </div>
             <div>
                 <label class="block text-xs font-medium text-gray-600 mb-1">Correo (opcional)</label>
-                <input type="email" name="fel_correo" value="<?= sanitize($v['cliente_correo'] ?: '') ?>"
+                <input type="email" name="fel_correo" id="fel_correo" value="<?= sanitize($v['cliente_correo'] ?: '') ?>"
                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
             </div>
-            <div class="flex gap-3 pt-2">
+            <div class="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700">
+                <i class="fas fa-triangle-exclamation mr-1"></i>
+                Una vez certificada ante SAT solo se puede anular, no editar.
+            </div>
+            <div class="flex gap-3 pt-1">
                 <button type="submit" class="bg-teal-600 text-white px-5 py-2.5 rounded-lg text-sm hover:bg-teal-700 font-medium">
                     <i class="fas fa-paper-plane mr-1"></i> Emitir
                 </button>
@@ -229,6 +239,42 @@ require_once __DIR__ . '/../../includes/header.php';
                         class="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg text-sm">Cancelar</button>
             </div>
         </form>
+
+        <script>
+        let nitTimer = null;
+        function buscarNitDebounce() {
+            clearTimeout(nitTimer);
+            nitTimer = setTimeout(buscarNit, 500);
+        }
+        async function buscarNit() {
+            const nit = document.getElementById('fel_nit').value.trim();
+            const spin = document.getElementById('nit-spinner');
+            const chk  = document.getElementById('nit-check');
+            const avi  = document.getElementById('nit-aviso');
+            chk.classList.add('hidden'); avi.classList.add('hidden');
+            if (!nit) return;
+            spin.classList.remove('hidden');
+            try {
+                const res = await fetch('<?= BASE_URL ?>/api/buscar_nit.php?nit=' + encodeURIComponent(nit));
+                const d = await res.json();
+                if (d.generico) {
+                    document.getElementById('fel_nombre').value = 'CONSUMIDOR FINAL';
+                } else if (d.encontrado) {
+                    document.getElementById('fel_nombre').value = d.nombre;
+                    if (d.correo) document.getElementById('fel_correo').value = d.correo;
+                    chk.classList.remove('hidden');
+                } else {
+                    avi.classList.remove('hidden');
+                }
+            } catch (e) {}
+            spin.classList.add('hidden');
+        }
+        function confirmarEmision(form) {
+            const nit = form.fel_nit.value.trim() || 'CF';
+            const nom = form.fel_nombre.value.trim() || 'CONSUMIDOR FINAL';
+            return confirm('¿Emitir la factura electrónica?\n\nNIT: ' + nit + '\nNombre: ' + nom + '\nTotal: <?= formatMoney($v['total']) ?>\n\nUna vez certificada ante SAT solo se puede anular.');
+        }
+        </script>
     </div>
 </div>
 <?php endif; ?>

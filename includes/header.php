@@ -58,6 +58,11 @@ function navActive($dir) {
     }
 
     *{ -webkit-tap-highlight-color: transparent; }
+    /* Nada se anima durante la carga de la página */
+    #sidebar, #main{ transition: none; }
+    body.ready #sidebar, body.ready #main{
+        transition: width .2s ease, margin .2s ease, transform .2s ease;
+    }
     [x-cloak]{ display:none !important; }
 
     html{ -webkit-text-size-adjust:100%; }
@@ -250,10 +255,11 @@ function navActive($dir) {
      class="fixed inset-0 bg-slate-900/50 backdrop-blur-[2px] z-30 lg:hidden"></div>
 
 <!-- SIDEBAR -->
-<aside :class="[
-           'fixed top-0 left-0 h-screen text-white z-40 flex flex-col transition-all duration-200',
-           'lg:translate-x-0',
-           mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64',
+<aside id="sidebar"
+       class="fixed top-0 left-0 h-screen w-64 text-white z-40 flex flex-col
+              -translate-x-full lg:translate-x-0"
+       :class="[
+           mobileOpen ? 'translate-x-0' : '-translate-x-full',
            sidebarOpen ? 'lg:w-64' : 'lg:w-[68px]'
        ]">
 
@@ -264,7 +270,7 @@ function navActive($dir) {
         <?php else: ?>
         <span class="w-8 h-8 rounded-md bg-white/10 flex items-center justify-center text-base flex-shrink-0">🏍️</span>
         <?php endif; ?>
-        <span x-show="sidebarOpen || mobileOpen" x-cloak
+        <span x-show="sidebarOpen || mobileOpen"
               class="text-[13.5px] font-semibold truncate tracking-tight"><?= sanitize($_appName) ?></span>
         <button @click="sidebarOpen = !sidebarOpen"
                 class="hidden lg:flex ml-auto w-6 h-6 items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10"
@@ -296,12 +302,12 @@ function navActive($dir) {
            class="flex items-center gap-3 px-2.5 py-2 text-[13.5px] <?= navActive($dir) ? 'is-active' : '' ?>"
            title="<?= $label ?>">
             <i class="fas <?= $icon ?> w-5 text-center flex-shrink-0"></i>
-            <span x-show="sidebarOpen || mobileOpen" x-cloak class="truncate"><?= $label ?></span>
+            <span x-show="sidebarOpen || mobileOpen" class="truncate"><?= $label ?></span>
         </a>
         <?php endforeach; ?>
 
         <?php if (isAdmin()): ?>
-        <div class="pt-3 pb-1 px-2.5" x-show="sidebarOpen || mobileOpen" x-cloak>
+        <div class="pt-3 pb-1 px-2.5" x-show="sidebarOpen || mobileOpen">
             <div class="h-px bg-white/10 mb-3"></div>
             <span class="text-[10.5px] font-medium text-white/35 tracking-wide">Administración</span>
         </div>
@@ -318,7 +324,7 @@ function navActive($dir) {
            class="flex items-center gap-3 px-2.5 py-2 text-[13.5px] <?= navActive($dir) ? 'is-active' : '' ?>"
            title="<?= $label ?>">
             <i class="fas <?= $icon ?> w-5 text-center flex-shrink-0"></i>
-            <span x-show="sidebarOpen || mobileOpen" x-cloak class="truncate"><?= $label ?></span>
+            <span x-show="sidebarOpen || mobileOpen" class="truncate"><?= $label ?></span>
         </a>
         <?php endforeach; endif; ?>
     </nav>
@@ -329,19 +335,18 @@ function navActive($dir) {
             <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[12px] font-semibold flex-shrink-0">
                 <?= strtoupper(substr($user['nombre'],0,1) . substr($user['apellido'],0,1)) ?>
             </div>
-            <div x-show="sidebarOpen || mobileOpen" x-cloak class="min-w-0 flex-1">
+            <div x-show="sidebarOpen || mobileOpen" class="min-w-0 flex-1">
                 <div class="text-[12.5px] font-medium truncate leading-tight"><?= sanitize($user['nombre'] . ' ' . $user['apellido']) ?></div>
                 <div class="text-[11px] text-white/40 truncate"><?= sanitize($ROLES[$user['rol_id']] ?? '') ?></div>
             </div>
-            <a href="<?= BASE_URL ?>/logout.php" title="Cerrar sesión"
-               x-show="sidebarOpen || mobileOpen" x-cloak
-               class="w-7 h-7 flex items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10 flex-shrink-0">
-                <i class="fas fa-arrow-right-from-bracket text-[11px]"></i>
-            </a>
         </div>
-        <a href="<?= BASE_URL ?>/logout.php" x-show="!sidebarOpen && !mobileOpen" x-cloak title="Cerrar sesión"
-           class="mt-1 w-full h-8 flex items-center justify-center rounded-md text-white/40 hover:text-white hover:bg-white/10">
-            <i class="fas fa-arrow-right-from-bracket text-[11px]"></i>
+
+        <!-- Cerrar sesión -->
+        <a href="<?= BASE_URL ?>/logout.php" title="Cerrar sesión"
+           class="mt-1.5 flex items-center gap-3 px-2.5 py-2 rounded-lg text-[13px]
+                  text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+            <i class="fas fa-arrow-right-from-bracket w-5 text-center flex-shrink-0 text-[12px]"></i>
+            <span x-show="sidebarOpen || mobileOpen">Cerrar sesión</span>
         </a>
     </div>
 </aside>
@@ -361,8 +366,8 @@ function navActive($dir) {
 </header>
 
 <!-- CONTENIDO -->
-<main :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-[68px]'"
-      class="transition-all duration-200 min-h-screen pt-[72px] lg:pt-8 px-4 pb-10 lg:px-8 lg:pb-12">
+<main id="main" :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-[68px]'"
+      class="lg:ml-64 min-h-screen pt-[72px] lg:pt-8 px-4 pb-10 lg:px-8 lg:pb-12">
 
     <?php if ($flash): ?>
     <div class="mb-5 flex items-start gap-3 px-4 py-3 rounded-xl text-[13.5px] border

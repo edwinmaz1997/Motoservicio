@@ -2,6 +2,10 @@
 <footer class="lg:hidden text-center text-[11px] text-slate-400 pb-6 -mt-4">
     <?= APP_NAME ?> · v<?= APP_VERSION ?>
 </footer>
+<script>
+// Las transiciones se activan tras la carga: evita el salto del menú al navegar
+requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('ready')));
+</script>
 <!-- Búsqueda y filtros en vivo -->
 <script>
 (function () {

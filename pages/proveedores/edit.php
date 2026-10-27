@@ -4,13 +4,14 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
-$stmt = $db->prepare("SELECT * FROM proveedores WHERE id = ?");
-$stmt->execute([$id]);
+$stmt = $db->prepare("SELECT * FROM proveedores WHERE id = ? AND empresa_id = ?");
+$stmt->execute([$id, empresaActual()]);
 $p = $stmt->fetch();
 if (!$p) { flashMessage('error','Proveedor no encontrado.'); header('Location: index.php'); exit; }
 

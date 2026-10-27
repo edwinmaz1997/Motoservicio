@@ -4,12 +4,13 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
 requireRol(ROL_ADMIN);
 $db = getDB();
-$sucursales = $db->query("SELECT * FROM sucursales WHERE activa=1 ORDER BY nombre")->fetchAll();
+$sucursales = sucursalesEmpresa();
 global $ROLES;
 $errors = [];
 $data = ['nombre'=>'','apellido'=>'','telefono'=>'','direccion'=>'','rol_id'=>'','username'=>'','sucursal_id'=>$user['sucursal_id']];
@@ -29,6 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $check = $db->prepare("SELECT id FROM usuarios WHERE username = ?");
     $check->execute([$data['username']]);
     if ($check->fetch()) $errors[] = 'El nombre de usuario ya existe.';
+
+    $uso = usoEmpresa();
+    if (empty($errors) && $uso && $uso['usuarios'] >= $uso['max_usuarios']) {
+        $errors[] = "Tu plan permite {$uso['max_usuarios']} usuarios activos. Contacta a soporte para ampliarlo.";
+    }
 
     if (empty($errors)) {
         $hash = password_hash($password, PASSWORD_BCRYPT);

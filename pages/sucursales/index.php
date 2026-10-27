@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -23,12 +24,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$data['nombre']) $errors[] = 'El nombre es requerido.';
     if (empty($errors)) {
         if ($id) {
-            $db->prepare("UPDATE sucursales SET nombre=?,direccion=?,telefono=?,correo=? WHERE id=?")
-               ->execute([$data['nombre'],$data['direccion'],$data['telefono'],$data['correo'],$id]);
+            $db->prepare("UPDATE sucursales SET nombre=?,direccion=?,telefono=?,correo=? WHERE id=? AND empresa_id=?")
+               ->execute([$data['nombre'],$data['direccion'],$data['telefono'],$data['correo'],$id, empresaActual()]);
             flashMessage('success','Sucursal actualizada.');
         } else {
-            $db->prepare("INSERT INTO sucursales (nombre,direccion,telefono,correo) VALUES (?,?,?,?)")
-               ->execute([$data['nombre'],$data['direccion'],$data['telefono'],$data['correo']]);
+            $uso = usoEmpresa();
+            if ($uso && $uso['sucursales'] >= $uso['max_sucursales']) {
+                flashMessage('error', "Tu plan permite {$uso['max_sucursales']} sucursal(es). Contacta a soporte para ampliarlo.");
+                header('Location: index.php'); exit;
+            }
+            $db->prepare("INSERT INTO sucursales (empresa_id,nombre,direccion,telefono,correo) VALUES (?,?,?,?,?)")
+               ->execute([empresaActual(),$data['nombre'],$data['direccion'],$data['telefono'],$data['correo']]);
             flashMessage('success','Sucursal creada.');
         }
         header('Location: index.php'); exit;
@@ -38,16 +44,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($action === 'delete' && $id) {
     $check = $db->prepare("SELECT COUNT(*) FROM usuarios WHERE sucursal_id=?"); $check->execute([$id]);
     if ($check->fetchColumn() > 0) { flashMessage('error','No se puede eliminar: tiene usuarios asignados.'); }
-    else { $db->prepare("DELETE FROM sucursales WHERE id=?")->execute([$id]); flashMessage('success','Sucursal eliminada.'); }
+    else { $db->prepare("DELETE FROM sucursales WHERE id=? AND empresa_id=?")->execute([$id, empresaActual()]); flashMessage('success','Sucursal eliminada.'); }
     header('Location: index.php'); exit;
 }
 
 $editData = ['nombre'=>'','direccion'=>'','telefono'=>'','correo'=>''];
 if (($action === 'edit') && $id) {
-    $stmt = $db->prepare("SELECT * FROM sucursales WHERE id=?"); $stmt->execute([$id]); $editData = $stmt->fetch() ?: $editData;
+    $stmt = $db->prepare("SELECT * FROM sucursales WHERE id=? AND empresa_id=?"); $stmt->execute([$id, empresaActual()]); $editData = $stmt->fetch() ?: $editData;
 }
 
-$sucursales = $db->query("SELECT s.*, (SELECT COUNT(*) FROM usuarios WHERE sucursal_id=s.id) as n_usuarios FROM sucursales s ORDER BY s.nombre")->fetchAll();
+$sst = $db->prepare("SELECT s.*, (SELECT COUNT(*) FROM usuarios WHERE sucursal_id=s.id) as n_usuarios FROM sucursales s WHERE s.empresa_id=? ORDER BY s.nombre");
+$sst->execute([empresaActual()]);
+$sucursales = $sst->fetchAll();
 $pageTitle = 'Sucursales';
 require_once __DIR__ . '/../../includes/header.php';
 ?>

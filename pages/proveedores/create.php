@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -15,8 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($data as $k => $_) $data[$k] = trim($_POST[$k] ?? '');
     if (!$data['nombre']) $errors[] = 'El nombre es requerido.';
     if (empty($errors)) {
-        $db->prepare("INSERT INTO proveedores (nombre,apellido,correo,nit,dpi,direccion,telefono) VALUES (?,?,?,?,?,?,?)")
-           ->execute(array_values($data));
+        $db->prepare("INSERT INTO proveedores (empresa_id,nombre,apellido,correo,nit,dpi,direccion,telefono) VALUES (?,?,?,?,?,?,?,?)")
+           ->execute(array_merge([empresaActual()], array_values($data)));
         flashMessage('success','Proveedor creado.');
         header('Location: index.php'); exit;
     }

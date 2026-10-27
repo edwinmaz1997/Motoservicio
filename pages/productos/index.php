@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -11,7 +12,7 @@ $search = trim($_GET['q'] ?? '');
 $tipo   = $_GET['tipo'] ?? '';
 $page   = max(1,(int)($_GET['page'] ?? 1));
 $limit  = 20; $offset = ($page-1)*$limit;
-$where  = "WHERE 1=1"; $params = [];
+$where  = "WHERE p.empresa_id = ?"; $params = [(int)empresaActual()];
 if ($search) { $like="%$search%"; $where.=" AND (p.nombre LIKE ? OR p.descripcion LIKE ?)"; $params=[$like,$like]; }
 if ($tipo)   { $where.=" AND p.tipo=?"; $params[]=$tipo; }
 $total = $db->prepare("SELECT COUNT(*) FROM productos p $where"); $total->execute($params); $totalRows=$total->fetchColumn(); $totalPages=ceil($totalRows/$limit);

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -12,8 +13,8 @@ $search = trim($_GET['q'] ?? '');
 $page   = max(1, (int)($_GET['page'] ?? 1));
 $limit  = 20;
 $offset = ($page - 1) * $limit;
-$where  = "WHERE 1=1";
-$params = [];
+$where  = "WHERE empresa_id = ?";
+$params = [(int)empresaActual()];
 
 if ($search) {
     $where  .= " AND (nombre LIKE ? OR apellido LIKE ? OR nit LIKE ? OR telefono LIKE ?)";

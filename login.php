@@ -20,9 +20,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($username && $password) {
         $db   = getDB();
-        $stmt = $db->prepare("SELECT u.*, s.nombre as sucursal_nombre FROM usuarios u
-                              JOIN sucursales s ON s.id = u.sucursal_id
-                              WHERE u.username = ? AND u.activo = 1 LIMIT 1");
+        $stmt = $db->prepare("
+            SELECT u.*, s.nombre AS sucursal_nombre, s.empresa_id,
+                   e.nombre AS empresa_nombre, e.estado AS empresa_estado, e.fecha_vence
+            FROM usuarios u
+            LEFT JOIN sucursales s ON s.id = u.sucursal_id
+            LEFT JOIN empresas   e ON e.id = s.empresa_id
+            WHERE u.username = ? AND u.activo = 1 LIMIT 1");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
@@ -31,12 +35,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['nombre']          = $user['nombre'];
             $_SESSION['apellido']        = $user['apellido'];
             $_SESSION['rol_id']          = $user['rol_id'];
-            $_SESSION['sucursal_id']     = $user['sucursal_id'];
-            $_SESSION['sucursal_nombre'] = $user['sucursal_nombre'];
-            header('Location: ' . BASE_URL . '/index.php');
-            exit;
+            $_SESSION['es_super']        = !empty($user['es_super']);
+
+            if (!empty($user['es_super'])) {
+                // El superadministrador entra a su propio panel
+                header('Location: ' . BASE_URL . '/master/index.php');
+                exit;
+            }
+
+            if (empty($user['sucursal_id'])) {
+                $error = 'Tu usuario no tiene sucursal asignada. Contacta al administrador.';
+            } else {
+                $_SESSION['sucursal_id']     = $user['sucursal_id'];
+                $_SESSION['sucursal_nombre'] = $user['sucursal_nombre'];
+                $_SESSION['empresa_id']      = $user['empresa_id'];
+                $_SESSION['empresa_nombre']  = $user['empresa_nombre'];
+                header('Location: ' . BASE_URL . '/index.php');
+                exit;
+            }
+        } else {
+            $error = 'Usuario o contraseña incorrectos.';
         }
-        $error = 'Usuario o contraseña incorrectos.';
     } else {
         $error = 'Escribe tu usuario y contraseña.';
     }

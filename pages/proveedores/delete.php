@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -14,6 +15,6 @@ if ($check->fetchColumn() > 0) {
     flashMessage('error','No se puede eliminar: el proveedor tiene compras registradas.');
     header('Location: index.php'); exit;
 }
-$db->prepare("DELETE FROM proveedores WHERE id = ?")->execute([$id]);
+$db->prepare("DELETE FROM proveedores WHERE id = ? AND empresa_id = ?")->execute([$id, empresaActual()]);
 flashMessage('success','Proveedor eliminado.');
 header('Location: index.php'); exit;

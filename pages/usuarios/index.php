@@ -3,14 +3,15 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
 requireRol(ROL_ADMIN);
 $db = getDB();
 $search = trim($_GET['q'] ?? '');
-$where  = "WHERE 1=1";
-$params = [];
+$where  = "WHERE s.empresa_id = ?";
+$params = [(int)empresaActual()];
 if ($search) {
     $like = "%$search%";
     $where .= " AND (u.nombre LIKE ? OR u.apellido LIKE ? OR u.username LIKE ?)";

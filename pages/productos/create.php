@@ -4,9 +4,12 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 $db = getDB();
-$categorias = $db->query("SELECT * FROM categorias ORDER BY nombre")->fetchAll();
+$cst = $db->prepare("SELECT * FROM categorias WHERE empresa_id=? ORDER BY nombre");
+$cst->execute([empresaActual()]);
+$categorias = $cst->fetchAll();
 $errors = [];
 $data = ['nombre'=>'','tipo'=>'estandar','descripcion'=>'','precio'=>'','unidad'=>'UND','medida'=>'','stock'=>0,'stock_minimo'=>0,'categoria_id'=>''];
 
@@ -15,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$data['nombre']) $errors[] = 'El nombre es requerido.';
     if ($data['precio'] === '') $errors[] = 'El precio es requerido.';
     if (empty($errors)) {
-        $db->prepare("INSERT INTO productos (categoria_id,tipo,nombre,descripcion,precio,unidad,medida,stock,stock_minimo) VALUES (?,?,?,?,?,?,?,?,?)")
-           ->execute([$data['categoria_id']?:null,$data['tipo'],$data['nombre'],$data['descripcion'],$data['precio'],$data['unidad'],$data['medida'],
+        $db->prepare("INSERT INTO productos (empresa_id,categoria_id,tipo,nombre,descripcion,precio,unidad,medida,stock,stock_minimo) VALUES (?,?,?,?,?,?,?,?,?,?)")
+           ->execute([empresaActual(),$data['categoria_id']?:null,$data['tipo'],$data['nombre'],$data['descripcion'],$data['precio'],$data['unidad'],$data['medida'],
                       $data['tipo']==='servicio' ? 0 : (int)$data['stock'],
                       $data['tipo']==='servicio' ? 0 : (int)$data['stock_minimo']]);
         flashMessage('success','Producto creado.');

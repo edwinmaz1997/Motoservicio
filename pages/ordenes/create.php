@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -14,8 +15,10 @@ $tecnicos  = $db->prepare("SELECT * FROM usuarios WHERE sucursal_id=? AND rol_id
 $tecnicos->execute([$user['sucursal_id'], ROL_TECNICO]); $tecnicos = $tecnicos->fetchAll();
 $asesores  = $db->prepare("SELECT * FROM usuarios WHERE sucursal_id=? AND rol_id IN (?,?) AND activo=1 ORDER BY nombre");
 $asesores->execute([$user['sucursal_id'], ROL_ASESOR_VENTAS, ROL_VENDEDOR]); $asesores = $asesores->fetchAll();
-$productos  = $db->query("SELECT p.*, c.nombre as categoria FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id WHERE p.activo=1 ORDER BY p.tipo, p.nombre")->fetchAll();
-$categorias = $db->query("SELECT * FROM categorias ORDER BY nombre")->fetchAll();
+$pst = $db->prepare("SELECT p.*, c.nombre as categoria FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id WHERE p.activo=1 AND p.empresa_id=? ORDER BY p.tipo, p.nombre");
+$pst->execute([empresaActual()]); $productos = $pst->fetchAll();
+$cst = $db->prepare("SELECT * FROM categorias WHERE empresa_id=? ORDER BY nombre");
+$cst->execute([empresaActual()]); $categorias = $cst->fetchAll();
 $marcas     = $db->query("SELECT * FROM marcas ORDER BY nombre")->fetchAll();
 $errors = [];
 

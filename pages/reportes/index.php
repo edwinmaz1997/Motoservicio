@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
@@ -191,10 +192,11 @@ elseif ($tipo === 'clientes') {
 }
 
 elseif ($tipo === 'inventario') {
-    $stmt = $db->query("
+    $stmt = $db->prepare("
         SELECT p.nombre, p.tipo, p.precio, p.stock, p.stock_minimo, p.unidad, c.nombre as categoria
         FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id
-        WHERE p.activo=1 ORDER BY p.tipo, p.nombre");
+        WHERE p.activo=1 AND p.empresa_id=? ORDER BY p.tipo, p.nombre");
+    $stmt->execute([empresaActual()]);
     $rows = $stmt->fetchAll();
     $estandar = array_filter($rows, function($r){ return $r['tipo']==='estandar'; });
     $servicios = array_filter($rows, function($r){ return $r['tipo']==='servicio'; });

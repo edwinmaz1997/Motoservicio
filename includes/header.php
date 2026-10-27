@@ -3,8 +3,10 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../includes/empresa.php';
 requireLogin();
 refreshSession();
+exigirEmpresaActiva();
 $user  = currentUser();
 
 // Configuración visual de la sucursal
@@ -267,6 +269,25 @@ function navActive($dir) {
 <body x-data="{ sidebarOpen: window.innerWidth >= 1024, mobileOpen: false }"
       @resize.window="sidebarOpen = window.innerWidth >= 1024"
       :class="mobileOpen ? 'overflow-hidden lg:overflow-auto' : ''">
+
+<?php if (!empty($_SESSION['suplantando'])): ?>
+<!-- Aviso: el superadministrador está trabajando dentro de una empresa -->
+<div class="fixed top-0 left-0 right-0 z-50 bg-amber-500 text-amber-950 text-[12.5px] font-medium
+            px-4 py-2 flex items-center justify-center gap-3 flex-wrap">
+    <span class="flex items-center gap-2">
+        <i class="fas fa-user-shield"></i>
+        Estás dentro de <strong><?= sanitize($_SESSION['empresa_nombre'] ?? '') ?></strong> como administrador maestro
+    </span>
+    <a href="<?= BASE_URL ?>/master/salir.php"
+       class="underline underline-offset-2 hover:no-underline font-semibold whitespace-nowrap">
+        Volver al panel maestro
+    </a>
+</div>
+<style>
+    body{ padding-top:34px; }
+    #sidebar{ top:34px !important; height:calc(100dvh - 34px) !important; }
+</style>
+<?php endif; ?>
 
 <!-- Overlay móvil -->
 <div x-show="mobileOpen" x-cloak @click="mobileOpen=false"

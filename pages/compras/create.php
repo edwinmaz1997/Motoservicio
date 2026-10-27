@@ -4,12 +4,15 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
 $db = getDB();
-$proveedores = $db->query("SELECT * FROM proveedores WHERE activo=1 ORDER BY nombre")->fetchAll();
-$productos   = $db->query("SELECT * FROM productos WHERE activo=1 AND tipo='estandar' ORDER BY nombre")->fetchAll();
+$prv = $db->prepare("SELECT * FROM proveedores WHERE activo=1 AND empresa_id=? ORDER BY nombre");
+$prv->execute([empresaActual()]); $proveedores = $prv->fetchAll();
+$pst = $db->prepare("SELECT * FROM productos WHERE activo=1 AND tipo='estandar' AND empresa_id=? ORDER BY nombre");
+$pst->execute([empresaActual()]); $productos = $pst->fetchAll();
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

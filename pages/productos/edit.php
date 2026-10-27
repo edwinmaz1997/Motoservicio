@@ -4,14 +4,17 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/helpers.php';
+require_once __DIR__ . '/../../includes/empresa.php';
 requireLogin();
 refreshSession();
 $user = currentUser();
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
-$stmt = $db->prepare("SELECT * FROM productos WHERE id=?"); $stmt->execute([$id]); $p=$stmt->fetch();
+$stmt = $db->prepare("SELECT * FROM productos WHERE id=? AND empresa_id=?"); $stmt->execute([$id, empresaActual()]); $p=$stmt->fetch();
 if (!$p) { flashMessage('error','No encontrado.'); header('Location: index.php'); exit; }
-$categorias = $db->query("SELECT * FROM categorias ORDER BY nombre")->fetchAll();
+$cst = $db->prepare("SELECT * FROM categorias WHERE empresa_id=? ORDER BY nombre");
+$cst->execute([empresaActual()]);
+$categorias = $cst->fetchAll();
 $errors=[]; $data=$p;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

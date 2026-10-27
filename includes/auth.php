@@ -41,13 +41,23 @@ function isAdmin() {
 function refreshSession() {
     if (isset($_SESSION['usuario_id']) && empty($_SESSION['sucursal_id']) && empty($_SESSION['es_super'])) {
         $db = getDB();
-        $stmt = $db->prepare("
-            SELECT u.*, s.nombre AS sucursal_nombre, s.empresa_id, e.nombre AS empresa_nombre
-            FROM usuarios u
-            LEFT JOIN sucursales s ON s.id = u.sucursal_id
-            LEFT JOIN empresas   e ON e.id = s.empresa_id
-            WHERE u.id = ? LIMIT 1");
-        $stmt->execute([$_SESSION['usuario_id']]);
+        // Tolerante: el módulo multiempresa puede no estar instalado todavía
+        try {
+            $stmt = $db->prepare("
+                SELECT u.*, s.nombre AS sucursal_nombre, s.empresa_id, e.nombre AS empresa_nombre
+                FROM usuarios u
+                LEFT JOIN sucursales s ON s.id = u.sucursal_id
+                LEFT JOIN empresas   e ON e.id = s.empresa_id
+                WHERE u.id = ? LIMIT 1");
+            $stmt->execute([$_SESSION['usuario_id']]);
+        } catch (Exception $ex) {
+            $stmt = $db->prepare("
+                SELECT u.*, s.nombre AS sucursal_nombre
+                FROM usuarios u
+                LEFT JOIN sucursales s ON s.id = u.sucursal_id
+                WHERE u.id = ? LIMIT 1");
+            $stmt->execute([$_SESSION['usuario_id']]);
+        }
         $u = $stmt->fetch();
         if ($u) {
             $_SESSION['sucursal_id']     = $u['sucursal_id'];

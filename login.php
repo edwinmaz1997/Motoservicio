@@ -19,15 +19,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if ($username && $password) {
-        $db   = getDB();
-        $stmt = $db->prepare("
-            SELECT u.*, s.nombre AS sucursal_nombre, s.empresa_id,
-                   e.nombre AS empresa_nombre, e.estado AS empresa_estado, e.fecha_vence
-            FROM usuarios u
-            LEFT JOIN sucursales s ON s.id = u.sucursal_id
-            LEFT JOIN empresas   e ON e.id = s.empresa_id
-            WHERE u.username = ? AND u.activo = 1 LIMIT 1");
-        $stmt->execute([$username]);
+        $db = getDB();
+
+        // Si todavía no se instaló el módulo multiempresa, entrar igual.
+        try {
+            $stmt = $db->prepare("
+                SELECT u.*, s.nombre AS sucursal_nombre, s.empresa_id,
+                       e.nombre AS empresa_nombre, e.estado AS empresa_estado, e.fecha_vence
+                FROM usuarios u
+                LEFT JOIN sucursales s ON s.id = u.sucursal_id
+                LEFT JOIN empresas   e ON e.id = s.empresa_id
+                WHERE u.username = ? AND u.activo = 1 LIMIT 1");
+            $stmt->execute([$username]);
+        } catch (Exception $ex) {
+            $stmt = $db->prepare("
+                SELECT u.*, s.nombre AS sucursal_nombre
+                FROM usuarios u
+                LEFT JOIN sucursales s ON s.id = u.sucursal_id
+                WHERE u.username = ? AND u.activo = 1 LIMIT 1");
+            $stmt->execute([$username]);
+        }
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
@@ -48,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $_SESSION['sucursal_id']     = $user['sucursal_id'];
                 $_SESSION['sucursal_nombre'] = $user['sucursal_nombre'];
-                $_SESSION['empresa_id']      = $user['empresa_id'];
-                $_SESSION['empresa_nombre']  = $user['empresa_nombre'];
+                $_SESSION['empresa_id']      = $user['empresa_id'] ?? null;
+                $_SESSION['empresa_nombre']  = $user['empresa_nombre'] ?? null;
                 header('Location: ' . BASE_URL . '/index.php');
                 exit;
             }

@@ -32,12 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$data['url_certificacion']) $data['url_certificacion'] = 'https://certificador.feel.com.gt/fel/procesounificado/transaccion/v2/xml';
     if (!$data['url_anulacion'])     $data['url_anulacion']     = 'https://certificador.feel.com.gt/fel/procesounificado/transaccion/v2/anulacion';
 
-    if ($data['activo']) {
-        foreach (['usuario_firma'=>'Usuario de firma','llave_firma'=>'Llave de firma','usuario_api'=>'Usuario API',
-                  'llave_api'=>'Llave API','nit_emisor'=>'NIT del emisor','nombre_emisor'=>'Nombre del emisor'] as $k=>$label) {
-            if (empty($data[$k])) $errors[] = "Para activar FEL se requiere: $label.";
-        }
-    }
 
     if (empty($errors)) {
         felConfig($suc); // asegura que exista la fila
@@ -85,10 +79,18 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
 </div>
 <?php endif; ?>
 
-<?php if ($faltan && !$cfg['activo']): ?>
+<?php if ($faltan): ?>
 <div class="bg-amber-50 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg text-sm mb-4">
-    <div class="font-semibold mb-1"><i class="fas fa-exclamation-triangle mr-1"></i> Faltan datos por configurar</div>
-    <div class="text-amber-700"><?= sanitize(implode(' · ', $faltan)) ?></div>
+    <div class="font-semibold mb-1">
+        <i class="fas fa-exclamation-triangle mr-1"></i>
+        <?= $cfg['activo'] ? 'Activo, pero aún no se puede certificar' : 'Faltan datos por configurar' ?>
+    </div>
+    <div class="text-amber-700 mb-1"><?= sanitize(implode(' · ', $faltan)) ?></div>
+    <?php if ($cfg['activo']): ?>
+    <div class="text-xs text-amber-600">
+        El botón «Venta con FEL» ya aparece en el punto de venta, pero el certificador rechazará los envíos hasta completar estos datos.
+    </div>
+    <?php endif; ?>
 </div>
 <?php endif; ?>
 
@@ -272,7 +274,7 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
                        class="mt-0.5 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                 <div>
                     <div class="text-sm font-medium text-gray-800">Habilitar FEL</div>
-                    <div class="text-xs text-gray-500">Muestra el botón de venta con factura en el punto de venta.</div>
+                    <div class="text-xs text-gray-500">Muestra el botón «Venta con FEL» en el punto de venta. Puedes activarlo antes de tener las credenciales para revisar el flujo.</div>
                 </div>
             </label>
 
@@ -297,7 +299,7 @@ $deptos = ['Alta Verapaz','Baja Verapaz','Chimaltenango','Chiquimula','El Progre
                 <i class="fas fa-save mr-1"></i> Guardar configuración
             </button>
 
-            <?php if (felHabilitado($suc)): ?>
+            <?php if ($cfg['activo']): ?>
             <a href="prueba.php" class="mt-2 block text-center border border-gray-300 text-gray-700 py-2.5 rounded-lg hover:bg-gray-50 text-sm transition">
                 <i class="fas fa-vial mr-1"></i> Enviar documento de prueba
             </a>

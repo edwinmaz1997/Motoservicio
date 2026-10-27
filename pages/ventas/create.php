@@ -13,7 +13,7 @@ $clientes  = $db->prepare("SELECT * FROM clientes WHERE sucursal_id=? AND activo
 $clientes->execute([$user['sucursal_id']]); $clientes = $clientes->fetchAll();
 $productos = $db->query("SELECT p.*, c.nombre as categoria FROM productos p LEFT JOIN categorias c ON c.id=p.categoria_id WHERE p.activo=1 ORDER BY p.tipo, p.nombre")->fetchAll();
 $categorias = $db->query("SELECT * FROM categorias ORDER BY nombre")->fetchAll();
-$felActivo  = felHabilitado($user['sucursal_id']);
+$felActivo  = felActivo($user['sucursal_id']);
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

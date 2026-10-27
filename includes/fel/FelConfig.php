@@ -44,7 +44,17 @@ function felConfig($sucursalId) {
 }
 
 /**
- * ¿La sucursal tiene FEL habilitado y completamente configurado?
+ * ¿FEL está activado para la sucursal?
+ * Controla si la interfaz muestra las opciones de facturación.
+ * No garantiza que se pueda certificar — eso lo valida felHabilitado().
+ */
+function felActivo($sucursalId) {
+    $cfg = felConfig($sucursalId);
+    return $cfg && !empty($cfg['activo']);
+}
+
+/**
+ * ¿La sucursal puede certificar? Activo + credenciales completas.
  */
 function felHabilitado($sucursalId) {
     $cfg = felConfig($sucursalId);

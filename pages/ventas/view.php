@@ -21,7 +21,7 @@ $stmt = $db->prepare("SELECT v.*, CONCAT(COALESCE(c.nombre,''),' ',COALESCE(c.ap
 $stmt->execute([$id,$user['sucursal_id']]); $v=$stmt->fetch();
 if (!$v) { flashMessage('error','Venta no encontrada.'); header('Location: index.php'); exit; }
 
-$felActivo = felHabilitado($user['sucursal_id']);
+$felActivo = felActivo($user['sucursal_id']);
 $dte       = felDocumentoDeVenta($id);
 
 // Emitir factura de una venta que se registró sin FEL

@@ -107,7 +107,7 @@ $cards = [
         'label'  => 'Recaudado hoy',
         'icono'  => 'fa-money-bill-wave',
         'color'  => 'bg-yellow-100 text-yellow-700',
-        'url'    => BASE_URL . '/pages/reportes/index.php?tipo=anticipos&rango=hoy',
+        'url'    => BASE_URL . '/pages/reportes/index.php?tipo=caja&rango=hoy',
     ],
 ];
 ?>

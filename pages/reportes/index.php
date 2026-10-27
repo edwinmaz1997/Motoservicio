@@ -83,6 +83,59 @@ elseif ($tipo === 'ordenes') {
     ];
 }
 
+elseif ($tipo === 'caja') {
+    // Todo el dinero que entró: ventas de mostrador + cobros sobre órdenes
+    $stmt = $db->prepare("
+        SELECT * FROM (
+            SELECT 'Venta'  AS origen,
+                   v.fecha  AS fecha,
+                   v.numero_venta AS documento,
+                   v.id AS ref_id,
+                   'venta' AS ref_tipo,
+                   TRIM(CONCAT(COALESCE(c.nombre,''),' ',COALESCE(c.apellido,''))) AS tercero,
+                   COALESCE(CONCAT(u.nombre,' ',u.apellido),'—') AS usuario,
+                   v.metodo_pago AS metodo,
+                   v.total AS monto
+            FROM ventas v
+            LEFT JOIN clientes c ON c.id = v.cliente_id
+            LEFT JOIN usuarios u ON u.id = v.vendedor_id
+            WHERE v.sucursal_id = ? AND v.estado = 'pagada'
+              AND v.fecha BETWEEN ? AND ?
+
+            UNION ALL
+
+            SELECT 'Cobro' AS origen,
+                   DATE(CONVERT_TZ(a.created_at,'+00:00','-06:00')) AS fecha,
+                   o.numero_orden AS documento,
+                   o.id AS ref_id,
+                   'orden' AS ref_tipo,
+                   TRIM(CONCAT(c.nombre,' ',c.apellido)) AS tercero,
+                   COALESCE(CONCAT(u.nombre,' ',u.apellido),'—') AS usuario,
+                   a.metodo_pago AS metodo,
+                   a.monto AS monto
+            FROM anticipos a
+            JOIN ordenes  o ON o.id = a.orden_id
+            JOIN clientes c ON c.id = o.cliente_id
+            LEFT JOIN usuarios u ON u.id = a.cajero_id
+            WHERE o.sucursal_id = ?
+              AND DATE(CONVERT_TZ(a.created_at,'+00:00','-06:00')) BETWEEN ? AND ?
+        ) mov
+        ORDER BY fecha DESC, origen");
+    $stmt->execute([$suc, $fechaDesde, $fechaHasta, $suc, $fechaDesde, $fechaHasta]);
+    $rows = $stmt->fetchAll();
+
+    $sumaPor = function($rows, $campo, $valor) {
+        $f = array_filter($rows, function($r) use ($campo,$valor){ return $r[$campo] === $valor; });
+        return array_sum(array_column($f, 'monto'));
+    };
+    $totales = [
+        'Ventas'        => $sumaPor($rows, 'origen', 'Venta'),
+        'Cobros'        => $sumaPor($rows, 'origen', 'Cobro'),
+        'Efectivo'      => $sumaPor($rows, 'metodo', 'efectivo'),
+        'Total recibido'=> array_sum(array_column($rows, 'monto')),
+    ];
+}
+
 elseif ($tipo === 'anticipos') {
     $stmt = $db->prepare("
         SELECT a.created_at, a.monto, a.metodo_pago, a.notas,
@@ -176,6 +229,7 @@ require_once __DIR__ . '/../../includes/header.php';
 $tipos = [
     'ordenes'    => ['Órdenes',           'fa-clipboard-list'],
     'ventas'     => ['Ventas mostrador',  'fa-cash-register'],
+    'caja'       => ['Caja',              'fa-wallet'],
     'anticipos'  => ['Cobros / Anticipos','fa-hand-holding-usd'],
     'compras'    => ['Compras',           'fa-truck'],
     'clientes'   => ['Clientes',          'fa-users'],
@@ -310,6 +364,52 @@ $estadoColors = ['abierta'=>'bg-blue-100 text-blue-700','en_proceso'=>'bg-yellow
             <?php endforeach; ?>
             <?php if (empty($rows)): ?><tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">Sin ventas en este período</td></tr><?php endif; ?>
         </tbody>
+    </table>
+
+    <?php elseif ($tipo === 'caja'): ?>
+    <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+            <tr>
+                <th class="px-4 py-2 text-left">Origen</th>
+                <th class="px-4 py-2 text-left">Fecha</th>
+                <th class="px-4 py-2 text-left">Documento</th>
+                <th class="px-4 py-2 text-left">Cliente</th>
+                <th class="px-4 py-2 text-left">Recibió</th>
+                <th class="px-4 py-2 text-left">Método</th>
+                <th class="px-4 py-2 text-right">Monto</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+            <?php foreach ($rows as $r): ?>
+            <tr class="hover:bg-gray-50">
+                <td class="px-4 py-2">
+                    <span class="rounded-full text-xs <?= $r['origen']==='Venta' ? 'bg-teal-100 text-teal-700' : 'bg-purple-100 text-purple-700' ?>">
+                        <?= $r['origen'] ?>
+                    </span>
+                </td>
+                <td class="px-4 py-2 text-slate-500"><?= formatDate($r['fecha']) ?></td>
+                <td class="px-4 py-2 font-mono">
+                    <a href="<?= $r['ref_tipo']==='venta' ? '../ventas/view.php' : '../ordenes/view.php' ?>?id=<?= $r['ref_id'] ?>"
+                       class="text-blue-600 hover:underline"><?= sanitize($r['documento']) ?></a>
+                </td>
+                <td class="px-4 py-2"><?= sanitize($r['tercero'] ?: 'Consumidor final') ?></td>
+                <td class="px-4 py-2"><?= sanitize($r['usuario']) ?></td>
+                <td class="px-4 py-2 capitalize"><?= sanitize($r['metodo']) ?></td>
+                <td class="px-4 py-2 text-right font-semibold text-emerald-700"><?= formatMoney($r['monto']) ?></td>
+            </tr>
+            <?php endforeach; ?>
+            <?php if (empty($rows)): ?>
+            <tr><td colspan="7" class="px-4 py-8 text-center text-gray-400">No entró dinero en este período</td></tr>
+            <?php endif; ?>
+        </tbody>
+        <?php if ($rows): ?>
+        <tfoot>
+            <tr>
+                <td colspan="6" class="px-4 py-3 text-right font-semibold">Total recibido</td>
+                <td class="px-4 py-3 text-right font-bold text-[15px]"><?= formatMoney(array_sum(array_column($rows,'monto'))) ?></td>
+            </tr>
+        </tfoot>
+        <?php endif; ?>
     </table>
 
     <?php elseif ($tipo === 'anticipos'): ?>
